@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  guess_my_zik-front:
+    container_name: guess_my_zik-front
+    image: guess_my_zik-front
+    build:
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/app/src
+    ports:
+      - 5173:5173
