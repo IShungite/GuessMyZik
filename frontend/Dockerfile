@@ -8,9 +8,11 @@ WORKDIR /app
 # Install dependencies
 COPY package.json .
 COPY package-lock.json .
-RUN npm install
 
-#Copy app files
+# Install all exact version dependencies or devDependencies from a package-lock
+RUN npm ci
+
+# Copy app files
 COPY . .
 
 # Start the app
