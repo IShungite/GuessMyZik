@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  guess_my_zik-api:
+    container_name: guess_my_zik-api
+    image: guess_my_zik-api
+    build:
+      dockerfile: Dockerfile
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - 3000:3000
