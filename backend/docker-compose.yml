@@ -8,5 +8,27 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./src:/app/src
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@guess_my_zik-postgres:5432/${POSTGRES_DB}?schema=public # override the DATABASE_URL of the .env (only the host changes)
     ports:
       - 3000:3000
+    depends_on:
+      - guess_my_zik-postgres
+
+  guess_my_zik-postgres:
+    container_name: guess_my_zik-postgres
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - '5432:5432'
+    volumes:
+      - guess_my_zik-postgres:/var/lib/postgresql/data
+
+volumes:
+  guess_my_zik-postgres:
