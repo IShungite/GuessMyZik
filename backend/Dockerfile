@@ -13,5 +13,8 @@ RUN npm ci
 # Copy app files
 COPY . .
 
+# Generate Prisma database client code
+RUN npm run prisma:generate
+
 # Start the app
 CMD [ "npm", "run", "start:dev" ]
