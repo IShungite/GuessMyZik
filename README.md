@@ -1,5 +1,9 @@
 # GuessMyZik
 
+## Requirements
+
+- Docker v.20 : https://www.docker.com/
+
 ## How to start ?
 
 - Clone the repo
