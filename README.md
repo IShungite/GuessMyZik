@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Docker v.20 : https://www.docker.com/
+- Docker v.20 : <https://www.docker.com/>
 
 ## How to start ?
 
