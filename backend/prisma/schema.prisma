@@ -16,4 +16,74 @@ model User {
   email    String @unique
   username String @unique
   password String
+
+  GamePlayers GamePlayer[]
+}
+
+enum GameState {
+  WAITING
+  PROGRESS
+  END
+}
+
+enum GameMode {
+  FIND_THE_ARTIST
+  FIND_THE_TRACK
+}
+
+model Game {
+  id String @id @default(uuid())
+
+  state              GameState @default(WAITING)
+  gameMode           GameMode  @default(FIND_THE_ARTIST)
+  joinCode           String
+  playlistId         String
+  totalPlaylistTrack Int
+  maxQuestion        Int
+  maxSuggestion      Int       @default(4)
+  maxPlayer          Int
+
+  gamePlayers GamePlayer[]
+  questions   Question[]
+}
+
+model GamePlayer {
+  id String @id @default(uuid())
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  game   Game   @relation(fields: [gameId], references: [id])
+  gameId String
+
+  isOwner Boolean
+
+  gamePlayerAnswers GamePlayerAnswer[]
+}
+
+model GamePlayerAnswer {
+  id String @id @default(uuid())
+
+  gamePlayer   GamePlayer @relation(fields: [gamePlayerId], references: [id])
+  gamePlayerId String
+}
+
+model Question {
+  id String @id @default(uuid())
+
+  trackId String
+  isDone  Boolean @default(false)
+
+  game    Game     @relation(fields: [gameId], references: [id])
+  gameId  String
+  answers Answer[]
+}
+
+model Answer {
+  id String @id @default(uuid())
+
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId String
+
+  value String
 }
