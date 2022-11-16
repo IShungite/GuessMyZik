@@ -18,7 +18,7 @@ export const deezerPlaylistsQuery = selectorFamily<Playlist[], string>({
   get: (searchTerm) => async () => {
     if (searchTerm === '') return [];
 
-    const response = await tryFetch<{ data: Playlist[] }>(`${deezerApiUrl}/search/playlist?q=${searchTerm}`);
-    return response.data;
+    const { data } = await tryFetch<{ data: Playlist[] }>(`${deezerApiUrl}/search/playlist?q=${searchTerm}`);
+    return data;
   },
 });

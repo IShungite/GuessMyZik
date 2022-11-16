@@ -1,9 +1,9 @@
-import React from "react";
-import UseDeezerPlaylistsApi from "../../hooks/UseDeezerPlaylistsApi";
-import PlaylistCard from "../PlaylistCard/PlaylistCard";
+import React from 'react';
+import UseDeezerPlaylists from '../../hooks/UseDeezerPlaylists';
+import PlaylistCard from '../PlaylistCard/PlaylistCard';
 
 export default function PlaylistGrid() {
-  const { data, isLoading, error } = UseDeezerPlaylistsApi();
+  const { data, isLoading, error } = UseDeezerPlaylists();
 
   return (
     <div>
