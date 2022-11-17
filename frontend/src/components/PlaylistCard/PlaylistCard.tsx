@@ -3,9 +3,9 @@ import Playlist from "../../@Types/Deezer/Playlist";
 
 export default function PlaylistCard({ playlist }: { playlist: Playlist }) {
   return (
-    <div>
+    <div className="p-3 border border-cyan-400 inline-block" >
       <div>{playlist.title}</div>
-      <img src={playlist.picture_medium} />
+      <img className="w-32" src={playlist.picture_medium} />
     </div>
   );
 }

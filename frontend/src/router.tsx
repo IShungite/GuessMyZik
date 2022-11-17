@@ -4,6 +4,7 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
+import WaitingRoom from "./pages/WaitingRoom/WaitingRoom";
 
 export default createBrowserRouter(
   createRoutesFromElements(
@@ -14,6 +15,8 @@ export default createBrowserRouter(
 
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Register />} />
+
+      <Route path="waiting-room" element={<WaitingRoom />} />
     </Route>
   )
 );
