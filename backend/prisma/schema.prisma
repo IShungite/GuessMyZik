@@ -13,8 +13,8 @@ datasource db {
 
 enum GameState {
   WAITING
-  PROGRESS
-  END
+  PLAYING
+  FINISHED
 }
 
 enum GameMode {
@@ -37,14 +37,14 @@ model Game {
   state              GameState @default(WAITING)
   gameMode           GameMode  @default(FIND_THE_ARTIST)
   joinCode           String
-  playlistId         String
-  totalPlaylistTrack Int
-  maxQuestion        Int
-  maxSuggestion      Int       @default(4)
-  maxPlayer          Int
+  playlistId         Float? // playlistId is an integer but a BIG number so INT cant be used to save the value. Neither BIGINT (CANT SERIALIZE A BIG INT) 
+  totalPlaylistTrack Int?
+  maxQuestions       Int       @default(1)
+  maxSuggestions     Int       @default(4)
+  maxPlayers         Int       @default(4)
 
-  gamePlayers GamePlayer[]
-  questions   Question[]
+  gamePlayers   GamePlayer[]
+  gameQuestions GameQuestion[]
 }
 
 model GamePlayer {
@@ -53,10 +53,10 @@ model GamePlayer {
   user   User   @relation(fields: [userId], references: [id])
   userId String
 
-  game   Game   @relation(fields: [gameId], references: [id])
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
   gameId String
 
-  isOwner Boolean
+  isOwner Boolean @default(false)
 
   gamePlayerAnswers GamePlayerAnswer[]
 }
@@ -64,25 +64,25 @@ model GamePlayer {
 model GamePlayerAnswer {
   id String @id @default(uuid())
 
-  gamePlayer   GamePlayer @relation(fields: [gamePlayerId], references: [id])
+  gamePlayer   GamePlayer @relation(fields: [gamePlayerId], references: [id], onDelete: Cascade)
   gamePlayerId String
 }
 
-model Question {
+model GameQuestion {
   id String @id @default(uuid())
 
   trackId String
   isDone  Boolean @default(false)
 
-  game    Game     @relation(fields: [gameId], references: [id])
+  game    Game         @relation(fields: [gameId], references: [id], onDelete: Cascade)
   gameId  String
-  answers Answer[]
+  answers GameAnswer[]
 }
 
-model Answer {
+model GameAnswer {
   id String @id @default(uuid())
 
-  question   Question @relation(fields: [questionId], references: [id])
+  question   GameQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String
 
   value String
