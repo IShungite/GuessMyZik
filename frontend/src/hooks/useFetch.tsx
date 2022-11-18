@@ -1,19 +1,20 @@
 import React from 'react'
-import tryFetch from '../utils/tryFetch';
+import call from '../utils/call';
 
 // export default function useFetch<T>(fetchFn: () => Promise<T>) {
-export default function useFetch<T>(url: string, options?: RequestInit) {
+export default function useFetch<T>() {
 
     const [data, setData] = React.useState<T | undefined>(undefined);
     const [isLoading, setIsLoading] = React.useState(false);
     const [error, setError] = React.useState<Error | null>(null);
 
-    const fetchData = React.useCallback(async () => {
+    const fetchData = React.useCallback(async (url: string, options?: RequestInit) => {
         setIsLoading(true);
         try {
-            const data = await tryFetch<T>(url, options);
+            const data = await call<T>(url, options);
             setData(data);
         } catch (error) {
+            console.warn(error);
             setError(error as Error);
         } finally {
             setIsLoading(false);
