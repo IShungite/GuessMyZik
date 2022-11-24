@@ -22,11 +22,6 @@ export class AppController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  getProfile(@Request() req) {
-    return req.user;
-  }
-
   @Get()
   getHello() {
     this.socketService.socket.emit('hello', 'Hello world!');

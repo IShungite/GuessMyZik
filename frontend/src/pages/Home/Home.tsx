@@ -1,4 +1,5 @@
 import React, { Suspense, useEffect } from 'react';
+import DisconnectButton from '../../components/DisconnectButton/DisconnectButton';
 import { io } from 'socket.io-client';
 import PlayButton from '../../components/PlayButton/PlayButton';
 import PlaylistGrid from '../../components/PlaylistsGrid/PlaylistGrid';
@@ -17,6 +18,7 @@ export default function Home() {
       </div>
 
       <PlayButton />
+      <DisconnectButton />
     </div>
   );
 }
