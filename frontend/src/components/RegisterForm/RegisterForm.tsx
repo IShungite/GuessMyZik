@@ -1,33 +1,29 @@
-import { useForm } from "react-hook-form";
-import { yupResolver } from '@hookform/resolvers/yup';
-import { IAuthInputs } from "../../@Types/Form/IFormInputs";
-import { loginSchema } from "../../schemas/AuthSchema";
-import { Alert, Button, Card, Checkbox, Label, TextInput } from "flowbite-react";
-import LoginButton from "../LoginButton/LoginButton";
-import useFetch from "../../hooks/useFetch";
-import { Credentials } from "../../@Types/Auth/User";
-import { useSetRecoilState } from "recoil";
-import { authState } from "../../atoms/authAtom";
-import { useNavigate } from "react-router-dom";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { Alert, TextInput } from "flowbite-react";
 import React from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { RegisterCredentials } from "../../@Types/Auth/User";
+import { IRegisterInputs } from "../../@Types/Form/IFormInputs";
+import useFetch from "../../hooks/useFetch";
+import { registerSchema } from "../../schemas/AuthSchema";
+import RegisterButton from "../RegisterButton/RegisterButton";
 
-export default function LoginForm() {
+export default function RegisterForm() {
 
-    const { register, handleSubmit, formState: { errors } } = useForm<IAuthInputs>({
-        resolver: yupResolver(loginSchema)
+    const { register, handleSubmit, formState: { errors } } = useForm<IRegisterInputs>({
+        resolver: yupResolver(registerSchema)
     });
     //const onSubmit = () => console.log(data);
-    const onSubmit = async (formData: IAuthInputs) => {
-        await fetchData(`http://localhost:3000/login`, { method: 'POST', body: JSON.stringify({ username: formData.username, password: formData.password }) });
+    const onSubmit = async (formData: IRegisterInputs) => {
+        await fetchData(`http://localhost:3000/users`, { method: 'POST', body: JSON.stringify({ username: formData.username, email: formData.email, password: formData.password }) });
     }
 
-    const { data, isLoading, error, fetchData } = useFetch<Credentials>();
-    const setAuth = useSetRecoilState(authState);
+    const { data, isLoading, error, fetchData } = useFetch<RegisterCredentials>();
     const navigate = useNavigate();
 
     React.useEffect(() => {
         if (data) {
-            setAuth(data);
             navigate(`/`);
         }
     }, [data])
@@ -59,6 +55,15 @@ export default function LoginForm() {
             <p>{errors.username?.message}</p>
 
             <TextInput
+                id="email"
+                type="string"
+                placeholder="Email"
+                required={true}
+                {...register("email")}
+            />
+            <p>{errors.email?.message}</p>
+
+            <TextInput
                 id="password"
                 type="password"
                 placeholder="Password"
@@ -67,7 +72,7 @@ export default function LoginForm() {
             />
             <p>{errors.password?.message}</p>
 
-            <LoginButton />
+            <RegisterButton />
 
         </form>
 
