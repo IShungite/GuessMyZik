@@ -28,6 +28,7 @@ export default function LoginForm() {
     React.useEffect(() => {
         if (data) {
             setAuth(data);
+            localStorage.setItem("auth", JSON.stringify(data));
             navigate(`/`);
         }
     }, [data])

@@ -6,8 +6,8 @@ export interface User {
 }
 
 export interface Credentials {
-    username: string;
-    access_token: string;
+    username?: string;
+    access_token?: string;
 }
 
 export interface RegisterCredentials {

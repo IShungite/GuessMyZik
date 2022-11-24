@@ -1,6 +1,5 @@
 export default async function call<T>(url: string, init?: RequestInit): Promise<T> {
 
-    console.log(init);
     // automatically add json content type if body is present
     if (init && init.body) {
         init.headers = {
