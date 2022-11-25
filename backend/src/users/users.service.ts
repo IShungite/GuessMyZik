@@ -65,9 +65,7 @@ export class UsersService {
     const dbPassword = await this.prisma.user.findUnique({
       where: { id }, select: { password: true },
     });
-    console.log(oldPassword);
     const result = await compare(oldPassword, dbPassword.password);
-    console.log(result);
     return result;
   }
 
