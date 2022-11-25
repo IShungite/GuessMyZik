@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
-import { hash } from 'bcryptjs';
+import { compare, hash } from 'bcryptjs';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
@@ -44,13 +44,31 @@ export class UsersService {
   async update(
     { where, data }: {
       where: Prisma.UserWhereUniqueInput;
-      data: Prisma.UserUpdateInput
+      data: Prisma.UserUpdateInput;
     },
   ): Promise<User> {
+    const { password } = data;
+    const hashedPassword = password ? await this.hashPwd(password as string) : undefined;
     return this.prisma.user.update({
       where,
-      data,
+      data: { ...data, password: hashedPassword },
     });
+  }
+
+  async hashPwd(password: string) {
+    const saltRounds = 10;
+    const hashedPassword = await hash(password, saltRounds);
+    return hashedPassword;
+  }
+
+  async checkPassword(oldPassword: string, newPassword: string, id: string) {
+    const dbPassword = await this.prisma.user.findUnique({
+      where: { id }, select: { password: true },
+    });
+    console.log(oldPassword);
+    const result = await compare(oldPassword, dbPassword.password);
+    console.log(result);
+    return result;
   }
 
   async remove(where: Prisma.UserWhereUniqueInput): Promise<User> {

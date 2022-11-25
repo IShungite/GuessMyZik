@@ -12,7 +12,6 @@ export default function DisconnectButton() {
     const handleClick = () => {
         localStorage.clear();
         resetCredentials(undefined);
-        console.log(authState);
         navigate(`/login`);
     }
 
