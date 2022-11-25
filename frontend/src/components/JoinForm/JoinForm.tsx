@@ -46,7 +46,7 @@ export default function JoinForm() {
 
     return (
         <form onSubmit={handleSubmit} className='flex space-x-2' >
-            <input className='border border-violet-500 w-28 text-2xl pr-2 pl-2' onChange={(e) => setJoinCode(e.target.value)} value={joinCode} />
+            <input className='border border-violet-500 w-28 text-2xl pr-2 pl-2' maxLength={6} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} value={joinCode} />
             <button type="submit" className={`text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-xl px-5 py-2.5 text-center ${isJoining && 'disabled:bg-gray-500'}`} disabled={isJoining}>{isJoining ? "Joining..." : "Join"}</button>
         </form>
     )
