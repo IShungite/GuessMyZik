@@ -1,27 +1,19 @@
 import React from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import Playlist from "../../@Types/Deezer/Playlist";
-import Game from "../../@Types/Game";
+import Game, { UpdateGameDto } from "../../@Types/Game";
 import { deezerPlaylistsSearchTermState } from "../../atoms/deezerPlaylistsAtom";
 import { gameState } from "../../atoms/gameAtom";
+import { backendApiUrl } from "../../constants";
 import useFetch from "../../hooks/useFetch";
 
-export default function PlaylistCardButton({ playlist }: { playlist: Playlist }) {
-  const [game, setGame] = useRecoilState(gameState);
+export default function PlaylistCardButton({ playlist, updateGame }: { playlist: Playlist, updateGame: (updateGameDto: UpdateGameDto) => void }) {
   const setDeezerPlaylistSearchTerm = useSetRecoilState(deezerPlaylistsSearchTermState)
 
-  const { data: gameUpdated, error, fetchData } = useFetch<Game>("http://localhost:3000/games/" + game.id, { method: "PATCH", body: JSON.stringify({ playlistId: playlist.id }), headers: { "Content-Type": "application/json" } });
-
   const handleClickPlaylist = () => {
-    fetchData();
+    updateGame({ playlistId: playlist.id });
     setDeezerPlaylistSearchTerm("");
   };
-
-  React.useEffect(() => {
-    if (gameUpdated) {
-      setGame(gameUpdated);
-    }
-  }, [gameUpdated]);
 
   return (
     <div onClick={handleClickPlaylist} className="hover:bg-slate-900">

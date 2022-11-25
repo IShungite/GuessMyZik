@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { RegisterCredentials } from "../../@Types/Auth/User";
 import { IRegisterInputs } from "../../@Types/Form/IFormInputs";
+import { backendApiUrl } from "../../constants";
 import useFetch from "../../hooks/useFetch";
 import { registerSchema } from "../../schemas/AuthSchema";
 import RegisterButton from "../RegisterButton/RegisterButton";
@@ -16,7 +17,7 @@ export default function RegisterForm() {
     });
     //const onSubmit = () => console.log(data);
     const onSubmit = async (formData: IRegisterInputs) => {
-        await fetchData(`http://localhost:3000/users`, { method: 'POST', body: JSON.stringify({ username: formData.username, email: formData.email, password: formData.password }) });
+        await fetchData(`${backendApiUrl}/users`, { method: 'POST', body: JSON.stringify({ username: formData.username, email: formData.email, password: formData.password }) });
     }
 
     const { data, isLoading, error, fetchData } = useFetch<RegisterCredentials>();

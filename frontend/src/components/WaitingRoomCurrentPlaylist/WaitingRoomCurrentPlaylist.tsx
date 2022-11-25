@@ -4,11 +4,7 @@ import { gameState } from '../../atoms/gameAtom'
 import PlaylistCard from '../PlaylistCard/PlaylistCard'
 
 export default function WaitingRoomCurrentPlaylist() {
-    const game = useRecoilValue(gameState)
-
-    if (!game) {
-        return null;
-    }
+    const game = useRecoilValue(gameState);
 
     return (
         <div>

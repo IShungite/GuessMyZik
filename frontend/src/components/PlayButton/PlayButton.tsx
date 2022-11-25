@@ -1,28 +1,51 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useSetRecoilState } from 'recoil'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 import Game from '../../@Types/Game'
 import { GamePlayer } from '../../@Types/GamePlayer'
-import { gameState } from '../../atoms/gameAtom'
+import { authState } from '../../atoms/authAtom'
+import { gameState, isInGameState } from '../../atoms/gameAtom'
+import { backendApiUrl } from '../../constants'
 import useFetch from '../../hooks/useFetch'
+import gameService from '../../services/gameService'
+import socketService from '../../services/socketService'
 
 export default function PlayButton() {
-    const { data, isLoading, error, fetchData } = useFetch<{ game: Game, gamePlayer: GamePlayer }>(`http://localhost:3000/games`, { method: 'POST' });
+    const { data, error, fetchData } = useFetch<Game>();
+
+    const [osJoining, setIsJoining] = React.useState(false);
+
     const setGame = useSetRecoilState(gameState);
+    const setIsInGame = useSetRecoilState(isInGameState)
     const navigate = useNavigate();
 
+    const auth = useRecoilValue(authState);
+
+    if (!auth) return null;
+
     const handleClickPlay = async () => {
-        await fetchData();
+        setIsJoining(true);
+        const game = await fetchData(`${backendApiUrl}/games`, { method: 'POST' });
+        if (game && socketService.socket) {
+            try {
+                const gameJoined = await gameService.joinGameRoom(socketService.socket, game.joinCode, auth.username);
+
+                if (gameJoined) {
+                    console.log('joined game room');
+                    setIsInGame(true);
+                    setGame(gameJoined);
+                    navigate('/game');
+                }
+
+            } catch (e: any) {
+                alert(e.error);
+            } finally {
+                setIsJoining(false);
+            }
+        }
     }
 
-    React.useEffect(() => {
-        if (data) {
-            setGame(data.game);
-            navigate(`/waiting-room`);
-        }
-    }, [data])
-
     return (
-        <button className={`bg-orange-200 hover:bg-orange-300 pt-2 pb-2 pl-5 pr-5 ${isLoading && 'disabled:bg-gray-500'}`} disabled={isLoading} onClick={handleClickPlay}>Play</button>
+        <button className={`bg-orange-200 hover:bg-orange-300 pt-2 pb-2 pl-5 pr-5 ${osJoining && 'disabled:bg-gray-500'}`} disabled={osJoining} onClick={handleClickPlay}>Play</button>
     )
 }

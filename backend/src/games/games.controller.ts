@@ -2,22 +2,28 @@ import {
   Controller, Get, Post, Body, Patch, Param, Delete,
 } from '@nestjs/common';
 import {
-  Game, GamePlayer, Prisma,
+  Game, Prisma,
 } from '@prisma/client';
+import { SocketService } from 'src/socket.service';
 import { GamesService } from './games.service';
 
 @Controller('games')
 export class GamesController {
-  constructor(private readonly gamesService: GamesService) { }
+  constructor(private readonly gamesService: GamesService, private socketService: SocketService) { }
 
   @Post()
-  create(): Promise<{ game: Game, gamePlayer: GamePlayer }> {
+  create(): Promise<Game> {
     return this.gamesService.create();
   }
 
   @Get('/removeall') // TODO REMOVE THIS ENDPOINT
   removeAll() {
     return this.gamesService.removeAll();
+  }
+
+  @Get('join/:joinCode')
+  findByJoinCode(@Param('joinCode') joinCode: string) {
+    return this.gamesService.findFirst({ joinCode, state: 'WAITING' });
   }
 
   @Get()
@@ -27,16 +33,24 @@ export class GamesController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.gamesService.findOne(id);
+    return this.gamesService.findOne({ id });
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGameDto: Prisma.GameUpdateInput) {
-    return this.gamesService.update(id, updateGameDto);
+  async update(@Param('id') id: string, @Body() updateGameDto: Prisma.GameUpdateInput) {
+    const gameUpdated = await this.gamesService.update(id, updateGameDto);
+
+    this.socketService.socket.to(gameUpdated.joinCode).emit('game-update', gameUpdated);
+
+    return gameUpdated;
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.gamesService.remove(id);
+  async remove(@Param('id') id: string) {
+    const gameDeleted = await this.gamesService.remove(id);
+
+    this.socketService.socket.to(gameDeleted.joinCode).emit('game-delete');
+
+    return gameDeleted;
   }
 }
