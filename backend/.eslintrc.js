@@ -15,6 +15,7 @@ module.exports = {
   rules: {
     "import/prefer-default-export": "off",
     "class-methods-use-this": "off",
-    "import/no-extraneous-dependencies": "warn"
+    "import/no-extraneous-dependencies": "warn",
+    "max-len": ["error", { "code": 120 }],
   }
 };
