@@ -62,6 +62,7 @@ export default function Game() {
     if (!game || !auth) return <Navigate to="/" />
 
     console.log(game);
+    console.log(auth);
 
     const isOwner = game.gamePlayers.find((gp) => gp.isOwner && gp.userId === auth.id)
 
@@ -85,7 +86,7 @@ export default function Game() {
                 </div>
 
                 <div>
-                    <div className='underline mb-2'>Settings:</div>
+                    <div className='underline mb-2'>Players:</div>
                     <div className='ml-5'>
                         {game.gamePlayers && game.gamePlayers.map((gamePlayer: GamePlayer) => {
                             return <div key={gamePlayer.userId}>{gamePlayer.userId}</div>

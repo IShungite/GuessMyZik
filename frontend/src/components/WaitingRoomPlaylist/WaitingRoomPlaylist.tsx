@@ -11,15 +11,15 @@ export default function WaitingRoomPlaylist({ updateGame }: { updateGame: (updat
     return (
         <div>
 
+            <WaitingRoomCurrentPlaylist />
+
             <div>
                 Choose a playlist!
             </div>
 
-
             <SearchPlaylistInput />
             <PlaylistGrid updateGame={updateGame} />
 
-            <WaitingRoomCurrentPlaylist />
 
 
 
