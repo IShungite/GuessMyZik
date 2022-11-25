@@ -37,7 +37,7 @@ model Game {
   state              GameState @default(WAITING)
   gameMode           GameMode  @default(FIND_THE_ARTIST)
   joinCode           String
-  playlistId         Float? // playlistId is an integer but a BIG number so INT cant be used to save the value. Neither BIGINT (CANT SERIALIZE A BIG INT) 
+  playlistId         Float // playlistId is an integer but a BIG number so INT cant be used to save the value. Neither BIGINT (CANT SERIALIZE A BIG INT) 
   totalPlaylistTrack Int?
   maxQuestions       Int       @default(1)
   maxSuggestions     Int       @default(4)

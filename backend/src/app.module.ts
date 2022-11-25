@@ -7,10 +7,11 @@ import { AuthModule } from './auth/auth.module';
 import { SocketModule } from './socket.module';
 import { AppGateway } from './app.gateway';
 import { RoomsModule } from './rooms/rooms.module';
+import { DeezerService } from './deezer/deezer.service';
 
 @Module({
   imports: [UsersModule, GamesModule, AuthModule, SocketModule, RoomsModule],
   controllers: [AppController],
-  providers: [AppService, AppGateway],
+  providers: [AppService, AppGateway, DeezerService],
 })
 export class AppModule { }

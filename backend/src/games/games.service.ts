@@ -1,15 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { Game, Prisma } from '@prisma/client';
+import { DeezerService } from 'src/deezer/deezer.service';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class GamesService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService, private readonly deezerService: DeezerService) { }
 
   async create(): Promise<Game> {
     const joinCode = this.createJoinCode();
+    const playlist = await this.deezerService.getRandomPlaylist();
+    const maxQuestions = Math.ceil(playlist.nb_tracks / 2);
+
     const game = await this.prisma.game.create({
-      data: { joinCode },
+      data: { joinCode, playlistId: playlist.id, maxQuestions },
     });
 
     return game;
