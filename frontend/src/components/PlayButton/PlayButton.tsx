@@ -13,7 +13,7 @@ import socketService from '../../services/socketService'
 export default function PlayButton() {
     const { data, error, fetchData } = useFetch<Game>();
 
-    const [osJoining, setIsJoining] = React.useState(false);
+    const [isJoining, setIsJoining] = React.useState(false);
 
     const setGame = useSetRecoilState(gameState);
     const setIsInGame = useSetRecoilState(isInGameState)
@@ -46,6 +46,6 @@ export default function PlayButton() {
     }
 
     return (
-        <button className={`bg-orange-200 hover:bg-orange-300 pt-2 pb-2 pl-5 pr-5 ${osJoining && 'disabled:bg-gray-500'}`} disabled={osJoining} onClick={handleClickPlay}>Play</button>
+        <button type="button" className={`text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-xl px-5 py-2.5 text-center ${isJoining && 'disabled:bg-gray-500'}`} onClick={handleClickPlay} disabled={isJoining}>Play</button>
     )
 }

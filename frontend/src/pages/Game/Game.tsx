@@ -61,23 +61,34 @@ export default function Game() {
 
     return (
         <div>
-            <h2>
-                game
-            </h2>
+            <div className='text-center font-bold text-xl mb-5'>Join code: {game.joinCode}</div>
 
-            <div>CODE: {game.joinCode}</div>
-            <div>Game mode: {game.gameMode}</div>
-            <div>Max player: {game.maxPlayers}</div>
-            <div>Max suggestions: {game.maxSuggestions}</div>
-            <div>Max questions: {game.maxQuestions}</div>
+            <div className='flex justify-between'>
+                <div>
+                    <div className='underline mb-2'>Settings:</div>
+                    <div className='ml-5'>
+                        <div>Game mode: {game.gameMode}</div>
+                        <div>Max player: {game.maxPlayers}</div>
+                        <div>Max suggestions: {game.maxSuggestions}</div>
+                        <div>Max questions: {game.maxQuestions}</div>
+                    </div>
+                </div>
 
-            <div>
-                Players: {game.gamePlayers && game.gamePlayers.map((gamePlayer: GamePlayer) => {
-                    return <div key={gamePlayer.userId}>{gamePlayer.userId}</div>
-                })}
+                <div className='text-center'>
+                    <WaitingRoomPlaylist updateGame={updateGame} />
+                </div>
+
+                <div>
+                    Players: {game.gamePlayers && game.gamePlayers.map((gamePlayer: GamePlayer) => {
+                        return <div key={gamePlayer.userId}>{gamePlayer.userId}</div>
+                    })}
+                </div>
+
             </div>
 
-            <WaitingRoomPlaylist updateGame={updateGame} />
+
+
+
         </div>
     );
 }
