@@ -8,3 +8,10 @@ export interface IRegisterInputs {
     email: string;
     password: string;
 }
+
+export interface IProfileInputs {
+    username?: string;
+    email?: string;
+    oldPassword?: string;
+    newPassword?: string;
+}

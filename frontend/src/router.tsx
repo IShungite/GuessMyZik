@@ -4,6 +4,7 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import Game from "./pages/Game/Game";
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
+import Profile from "./pages/Profile/Profile";
 import Register from "./pages/Register/Register";
 
 export default createBrowserRouter(
@@ -11,6 +12,7 @@ export default createBrowserRouter(
     <Route path="/" element={<App />}>
       <Route path="/" element={<ProtectedRoute />}>
         <Route path="/" element={<Home />} />
+        <Route path="profile" element={<Profile />} />
       </Route>
 
       <Route path="login" element={<Login />} />
