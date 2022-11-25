@@ -49,7 +49,9 @@ export class RoomsGateway {
       { where: { gameId: gameExists.id } },
     );
 
-    const newGamePlayer = await this.prismaService.gamePlayer.create({
+    const userHasAlreadyJoined = previousGamePlayers.find((gamePlayer) => gamePlayer.userId === userId);
+
+    const newGamePlayer = userHasAlreadyJoined || await this.prismaService.gamePlayer.create({
       data: {
         gameId: gameExists.id,
         userId: userExists.id,
@@ -60,7 +62,12 @@ export class RoomsGateway {
 
     await client.join(joinCode);
 
-    client.emit('join_success', { game: { ...gameExists, gamePlayers: [...previousGamePlayers, newGamePlayer] } });
+    client.emit('join_success', {
+      game: {
+        ...gameExists,
+        gamePlayers: userHasAlreadyJoined ? previousGamePlayers : [...previousGamePlayers, newGamePlayer],
+      },
+    });
 
     client.to(joinCode).emit('on_join_room', { gamePlayer: newGamePlayer });
   }
@@ -78,8 +85,10 @@ export class RoomsGateway {
       where: { game: { joinCode: gameRoom }, userId },
     });
 
-    client.to(gameRoom).emit('on_leave_room', { gamePlayerId: gamePlayer.id });
+    this.logger.log(`user ${gamePlayer.userId} leaving from the room ${gameRoom}`);
 
     await client.leave(gameRoom);
+
+    client.to(gameRoom).emit('on_leave_room', { gamePlayerId: gamePlayer.id });
   }
 }
