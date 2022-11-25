@@ -2,9 +2,11 @@ import {
   Controller, Get, Post, UseGuards, Request,
 } from '@nestjs/common';
 import { AppService } from './app.service';
+import { IUserRequest } from './auth/auth.models';
 import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
+import { GetUser } from './decorator/get-user.decorator';
 import { SocketService } from './socket.service';
 
 @Controller()
@@ -23,7 +25,8 @@ export class AppController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  getHello() {
+  getHello(@GetUser() user: IUserRequest) {
+    console.log(user);
     this.socketService.socket.emit('hello', 'Hello world!');
     return 'Hello World!';
   }

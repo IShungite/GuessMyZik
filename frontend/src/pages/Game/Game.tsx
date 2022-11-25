@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react'
 import { Navigate } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { default as GameType, GameMode, GameState, UpdateGameDto } from '../../@Types/Game';
 import { GamePlayer } from '../../@Types/GamePlayer';
+import { authState } from '../../atoms/authAtom';
 import { gameState } from '../../atoms/gameAtom';
 import WaitingRoomPlaylist from '../../components/WaitingRoomPlaylist/WaitingRoomPlaylist';
 import gameService from '../../services/gameService';
@@ -10,6 +11,7 @@ import socketService from '../../services/socketService';
 
 export default function Game() {
     const [game, setGame] = useRecoilState(gameState);
+    const auth = useRecoilValue(authState);
 
     const updateGame = (updateGameDto: UpdateGameDto) => {
         setGame((prevGame) => { return { ...prevGame, ...updateGameDto } });
@@ -44,20 +46,24 @@ export default function Game() {
     }
 
     useEffect(() => {
+        if (!auth) return;
+
         handleGameUpdate();
         handleJoinGameRoom();
         handleLeaveGameRoom();
 
         return () => {
             if (socketService.socket) {
-                gameService.leaveGameRoom(socketService.socket);
+                gameService.leaveGameRoom(socketService.socket, auth.id);
             }
         }
     }, []);
 
-    if (!game) return <Navigate to="/" />
+    if (!game || !auth) return <Navigate to="/" />
 
     console.log(game);
+
+    const isOwner = game.gamePlayers.find((gp) => gp.isOwner && gp.userId === auth.id)
 
     return (
         <div>
@@ -79,15 +85,16 @@ export default function Game() {
                 </div>
 
                 <div>
-                    Players: {game.gamePlayers && game.gamePlayers.map((gamePlayer: GamePlayer) => {
-                        return <div key={gamePlayer.userId}>{gamePlayer.userId}</div>
-                    })}
+                    <div className='underline mb-2'>Settings:</div>
+                    <div className='ml-5'>
+                        {game.gamePlayers && game.gamePlayers.map((gamePlayer: GamePlayer) => {
+                            return <div key={gamePlayer.userId}>{gamePlayer.userId}</div>
+                        })}
+                    </div>
                 </div>
-
             </div>
 
-
-
+            {isOwner && <div>You are the owner of the game!</div>}
 
         </div>
     );

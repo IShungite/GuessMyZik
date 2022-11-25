@@ -4,9 +4,9 @@ import { GamePlayer } from "../@Types/GamePlayer";
 
 class GameService {
 
-    public async joinGameRoom(socket: Socket, joinCode: string, username: string): Promise<Game> {
+    public async joinGameRoom(socket: Socket, joinCode: string, userId: string): Promise<Game> {
         return new Promise((resolve, reject) => {
-            socket.emit("join_room", { joinCode, username });
+            socket.emit("join_room", { joinCode, userId });
 
             socket.on("join_success", ({ game }: { game: Game }) => resolve(game));
 
@@ -27,8 +27,8 @@ class GameService {
         socket.on("on_game_update", ({ updateGameDto }: { updateGameDto: UpdateGameDto }) => listener(updateGameDto));
     }
 
-    public async leaveGameRoom(socket: Socket) {
-        socket.emit("leave_room");
+    public async leaveGameRoom(socket: Socket, userId: string) {
+        socket.emit("leave_room", { userId });
     }
 
     public async onLeaveGameRoom(socket: Socket, listener: (gamePlayerId: string) => void) {

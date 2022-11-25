@@ -19,10 +19,10 @@ export class RoomsGateway {
 
   @SubscribeMessage('join_room')
   async joinRoom(
-    @MessageBody() { joinCode, username }: { joinCode: string, username: string },
+    @MessageBody() { joinCode, userId }: { joinCode: string, userId: string },
     @ConnectedSocket() client: Socket,
   ) {
-    this.logger.log(`client ${client.id} joining the room ${joinCode}`);
+    this.logger.log(`client ${client.id} with userId ${userId} joining the room ${joinCode}`);
 
     const socketRooms = Array.from(client.rooms.values()).filter((room) => room !== client.id);
 
@@ -38,7 +38,7 @@ export class RoomsGateway {
       throw new NotFoundException('Game not found');
     }
 
-    const userExists = await this.prismaService.user.findUnique({ where: { username } });
+    const userExists = await this.prismaService.user.findUnique({ where: { id: userId } });
 
     if (!userExists) {
       client.emit('join_error', { error: 'User not found' });
@@ -66,13 +66,16 @@ export class RoomsGateway {
   }
 
   @SubscribeMessage('leave_room')
-  async leaveGame(@ConnectedSocket() client: Socket) {
+  async leaveGame(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() { userId }: { userId: string },
+  ) {
     const gameRoom = getSocketGameRoom(client);
 
     this.logger.log(`client ${client.id} leaving from the room ${gameRoom}`);
 
     const gamePlayer = await this.prismaService.gamePlayer.findFirst({
-      where: { game: { joinCode: gameRoom } },
+      where: { game: { joinCode: gameRoom }, userId },
     });
 
     client.to(gameRoom).emit('on_leave_room', { gamePlayerId: gamePlayer.id });

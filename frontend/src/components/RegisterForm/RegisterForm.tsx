@@ -15,7 +15,7 @@ export default function RegisterForm() {
     const { register, handleSubmit, formState: { errors } } = useForm<IRegisterInputs>({
         resolver: yupResolver(registerSchema)
     });
-    //const onSubmit = () => console.log(data);
+
     const onSubmit = async (formData: IRegisterInputs) => {
         await fetchData(`${backendApiUrl}/users`, { method: 'POST', body: JSON.stringify({ username: formData.username, email: formData.email, password: formData.password }) });
     }

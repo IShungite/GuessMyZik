@@ -17,7 +17,7 @@ export default function LoginForm() {
     const { register, handleSubmit, formState: { errors } } = useForm<IAuthInputs>({
         resolver: yupResolver(loginSchema)
     });
-    //const onSubmit = () => console.log(data);
+
     const onSubmit = async (formData: IAuthInputs) => {
         await fetchData(`${backendApiUrl}/login`, { method: 'POST', body: JSON.stringify({ username: formData.username, password: formData.password }) });
     }

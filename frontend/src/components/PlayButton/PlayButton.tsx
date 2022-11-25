@@ -28,10 +28,9 @@ export default function PlayButton() {
         const game = await fetchData(`${backendApiUrl}/games`, { method: 'POST' });
         if (game && socketService.socket) {
             try {
-                const gameJoined = await gameService.joinGameRoom(socketService.socket, game.joinCode, auth.username);
+                const gameJoined = await gameService.joinGameRoom(socketService.socket, game.joinCode, auth.id);
 
                 if (gameJoined) {
-                    console.log('joined game room');
                     setIsInGame(true);
                     setGame(gameJoined);
                     navigate('/game');
@@ -42,10 +41,12 @@ export default function PlayButton() {
             } finally {
                 setIsJoining(false);
             }
+        } else {
+            setIsJoining(false);
         }
     }
 
     return (
-        <button type="button" className={`text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-xl px-5 py-2.5 text-center ${isJoining && 'disabled:bg-gray-500'}`} onClick={handleClickPlay} disabled={isJoining}>Play</button>
+        <button type="button" className={`text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-xl px-5 py-2.5 text-center ${isJoining && 'disabled:bg-gray-500'}`} onClick={handleClickPlay} disabled={isJoining}>{isJoining ? "Loading.." : "Play"}</button>
     )
 }

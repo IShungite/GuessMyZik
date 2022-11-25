@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { authState } from '../../atoms/authAtom'
 import favicon from '../../assets/favicon.png'
+import decodeJwt from '../../utils/decodeJwt';
 
 export default function NavBar() {
     const auth = useRecoilValue(authState);
@@ -33,15 +34,15 @@ export default function NavBar() {
                             <button type="button" className="flex mr-3 text-sm bg-gray-800 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
                                 <span className="sr-only">Open user menu</span>
                                 <div className="inline-flex overflow-hidden relative justify-center items-center w-8 h-8 bg-gray-300 rounded-full dark:bg-gray-600">
-                                    <span className="font-medium text-gray-600 dark:text-gray-300"> {auth.username.charAt(0).toUpperCase()}</span>
+                                    <span className="font-medium text-gray-600 dark:text-gray-300"> {decodeJwt(auth.access_token).username.charAt(0).toUpperCase()}</span>
                                 </div>
                             </button>
 
                             {/* <!-- Dropdown menu --> */}
                             <div className="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
                                 <div className="px-4 py-3">
-                                    <span className="block text-sm text-gray-900 dark:text-white">{auth.username}</span>
-                                    <span className="block text-sm font-medium text-gray-500 truncate dark:text-gray-400">{auth.username}</span>
+                                    <span className="block text-sm text-gray-900 dark:text-white">{decodeJwt(auth.access_token).username}</span>
+                                    <span className="block text-sm font-medium text-gray-500 truncate dark:text-gray-400">{decodeJwt(auth.access_token).username}</span>
                                 </div>
                                 <ul className="py-1" aria-labelledby="user-menu-button">
                                     <li>
