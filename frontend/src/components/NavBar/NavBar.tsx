@@ -30,12 +30,10 @@ export default function NavBar() {
                 <div className="flex items-center md:order-2">
                     {auth ?
                         <>
-                            <button type="button" className="flex mr-3 text-sm bg-gray-800 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
+                            <button type="button" className="flex mr-3 text-sm bg-gray-800 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
                                 <span className="sr-only">Open user menu</span>
-                                <div className='w-8 h-8 rounded-full bg-red-800'>
-                                    <p className='text-2xl'>
-                                        {auth.username.charAt(0).toUpperCase()}
-                                    </p>
+                                <div className="inline-flex overflow-hidden relative justify-center items-center w-8 h-8 bg-gray-300 rounded-full dark:bg-gray-600">
+                                    <span className="font-medium text-gray-600 dark:text-gray-300"> {auth.username.charAt(0).toUpperCase()}</span>
                                 </div>
                             </button>
 

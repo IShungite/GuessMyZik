@@ -21,7 +21,7 @@ function App() {
     <div className="App">
       <Header />
 
-      <div className='px-2 sm:px-4 py-2.5'>
+      <div className='px-2 sm:px-4 py-2.5 min-h-fit'>
         <Outlet />
       </div>
     </div>
