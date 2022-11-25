@@ -1,10 +1,10 @@
 import { createBrowserRouter, createRoutesFromElements, Route } from "react-router-dom";
 import App from "./App";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import Game from "./pages/Game/Game";
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
-import WaitingRoom from "./pages/WaitingRoom/WaitingRoom";
 
 export default createBrowserRouter(
   createRoutesFromElements(
@@ -16,7 +16,7 @@ export default createBrowserRouter(
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Register />} />
 
-      <Route path="waiting-room" element={<WaitingRoom />} />
+      <Route path="game" element={<Game />} />
     </Route>
   )
 );

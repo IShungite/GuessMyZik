@@ -5,6 +5,6 @@ export default async function tryFetch<T>(url: string, init?: RequestInit): Prom
     return data;
   } catch (error) {
     console.log(error);
-    throw new Error("Error while fetching data");
+    throw new Error('Error while fetching data');
   }
 }

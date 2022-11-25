@@ -56,7 +56,8 @@ model GamePlayer {
   game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
   gameId String
 
-  isOwner Boolean @default(false)
+  isOwner     Boolean @default(false)
+  isConnected Boolean @default(false)
 
   gamePlayerAnswers GamePlayerAnswer[]
 }

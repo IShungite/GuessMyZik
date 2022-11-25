@@ -10,6 +10,7 @@ import { useSetRecoilState } from "recoil";
 import { authState } from "../../atoms/authAtom";
 import { useNavigate } from "react-router-dom";
 import React from "react";
+import { backendApiUrl } from "../../constants";
 
 export default function LoginForm() {
 
@@ -18,7 +19,7 @@ export default function LoginForm() {
     });
     //const onSubmit = () => console.log(data);
     const onSubmit = async (formData: IAuthInputs) => {
-        await fetchData(`http://localhost:3000/login`, { method: 'POST', body: JSON.stringify({ username: formData.username, password: formData.password }) });
+        await fetchData(`${backendApiUrl}/login`, { method: 'POST', body: JSON.stringify({ username: formData.username, password: formData.password }) });
     }
 
     const { data, isLoading, error, fetchData } = useFetch<Credentials>();

@@ -5,3 +5,8 @@ export const gameState = atom<Game>({
     key: 'game',
     default: undefined,
 });
+
+export const isInGameState = atom<boolean>({
+    key: 'isInGame',
+    default: false,
+});

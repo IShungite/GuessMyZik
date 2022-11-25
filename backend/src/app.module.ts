@@ -6,9 +6,10 @@ import { GamesModule } from './games/games.module';
 import { AuthModule } from './auth/auth.module';
 import { SocketModule } from './socket.module';
 import { AppGateway } from './app.gateway';
+import { RoomsModule } from './rooms/rooms.module';
 
 @Module({
-  imports: [UsersModule, GamesModule, AuthModule, SocketModule],
+  imports: [UsersModule, GamesModule, AuthModule, SocketModule, RoomsModule],
   controllers: [AppController],
   providers: [AppService, AppGateway],
 })
