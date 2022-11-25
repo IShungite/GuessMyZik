@@ -1,24 +1,18 @@
 import React from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useRecoilValue, useSetRecoilState } from 'recoil'
-import { authState } from '../../atoms/authAtom'
+import { Link, useLocation } from 'react-router-dom';
 import favicon from '../../assets/favicon.png'
 import decodeJwt from '../../utils/decodeJwt';
+import useAuth from '../../hooks/useAuth';
 
 export default function NavBar() {
-    const auth = useRecoilValue(authState);
-
     const location = useLocation();
 
-    const navigate = useNavigate();
-    const resetCredentials = useSetRecoilState(authState);
+    const { auth, logout } = useAuth();
 
     const pathName = location.pathname;
 
     const handleClickLogout = () => {
-        localStorage.clear();
-        resetCredentials(undefined);
-        navigate(`/login`);
+        logout();
     }
 
     return (
