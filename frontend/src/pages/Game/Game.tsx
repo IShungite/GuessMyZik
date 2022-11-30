@@ -6,6 +6,7 @@ import { GamePlayer } from '../../@Types/GamePlayer';
 import { authState } from '../../atoms/authAtom';
 import { gameState } from '../../atoms/gameAtom';
 import WaitingRoomPlaylist from '../../components/WaitingRoomPlaylist/WaitingRoomPlaylist';
+import WaitingRoomSuggestion from '../../components/WaitingRoomSuggestion/WaitingRoomSuggestion';
 import gameService from '../../services/gameService';
 import socketService from '../../services/socketService';
 
@@ -61,9 +62,6 @@ export default function Game() {
 
     if (!game || !auth) return <Navigate to="/" />
 
-    console.log(game);
-    console.log(auth);
-
     const isOwner = game.gamePlayers.find((gp) => gp.isOwner && gp.userId === auth.id)
 
     return (
@@ -76,7 +74,7 @@ export default function Game() {
                     <div className='ml-5'>
                         <div>Game mode: {game.gameMode}</div>
                         <div>Max player: {game.maxPlayers}</div>
-                        <div>Max suggestions: {game.maxSuggestions}</div>
+                        <WaitingRoomSuggestion updateGame={updateGame} />
                         <div>Max questions: {game.maxQuestions}</div>
                     </div>
                 </div>

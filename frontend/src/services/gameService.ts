@@ -15,6 +15,7 @@ class GameService {
     }
 
     public async onJoinGameRoom(socket: Socket, listener: (gamePlayer: GamePlayer) => void) {
+        console.log("Add on_join_room listener");
         socket.on("on_join_room", ({ gamePlayer }: { gamePlayer: GamePlayer }) => listener(gamePlayer));
     }
 
@@ -29,6 +30,7 @@ class GameService {
 
     public async leaveGameRoom(socket: Socket, userId: string) {
         socket.emit("leave_room", { userId });
+        socket.removeAllListeners();
     }
 
     public async onLeaveGameRoom(socket: Socket, listener: (gamePlayerId: string) => void) {

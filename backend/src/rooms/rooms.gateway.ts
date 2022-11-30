@@ -70,6 +70,8 @@ export class RoomsGateway {
     });
 
     client.to(joinCode).emit('on_join_room', { gamePlayer: newGamePlayer });
+
+    this.logger.log(`client ${client.id} with userId ${userId} has successfully joined the room ${joinCode}`);
   }
 
   @SubscribeMessage('leave_room')
