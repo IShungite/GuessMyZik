@@ -51,14 +51,20 @@ export class RoomsGateway {
 
     const userHasAlreadyJoined = previousGamePlayers.find((gamePlayer) => gamePlayer.userId === userId);
 
-    const newGamePlayer = userHasAlreadyJoined || await this.prismaService.gamePlayer.create({
-      data: {
-        gameId: gameExists.id,
-        userId: userExists.id,
-        isConnected: true,
-        isOwner: previousGamePlayers.length === 0,
-      },
-    });
+    const newGamePlayer = userHasAlreadyJoined
+      ? await this.prismaService.gamePlayer.update({
+        where: { id: userHasAlreadyJoined.id },
+        data: { socketId: client.id, isConnected: true },
+      })
+      : await this.prismaService.gamePlayer.create({
+        data: {
+          gameId: gameExists.id,
+          userId: userExists.id,
+          socketId: client.id,
+          isConnected: true,
+          isOwner: previousGamePlayers.length === 0,
+        },
+      });
 
     await client.join(joinCode);
 

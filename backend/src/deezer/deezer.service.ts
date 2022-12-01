@@ -2,22 +2,45 @@ import { Injectable } from '@nestjs/common';
 import Artist from '@Types/Deezer/Artist';
 import Playlist from '@Types/Deezer/Playlist';
 import Track from '@Types/Deezer/Track';
+import shuffle from 'src/utils/shuffle';
 import tryFetch from 'src/utils/tryFetch';
 
 @Injectable()
 export class DeezerService {
-  async getPlaylistTracks(playlistId: string): Promise<Track[]> {
+  async getPlaylistTracks(playlistId: number): Promise<Track[]> {
     const { data: tracks } = await tryFetch<{ data: Track[] }>(`https://api.deezer.com/playlist/${playlistId}/tracks`);
 
     return tracks;
   }
 
-  async getSimilarArtists(artistId: string): Promise<Artist[]> {
+  async getRandomPlaylistTracks(playlistId: number, maxTracks: number): Promise<Track[]> {
+    const tracks = await this.getPlaylistTracks(playlistId);
+
+    const shuffledTacks = shuffle(tracks);
+
+    return shuffledTacks.slice(0, maxTracks);
+  }
+
+  async getTrack(trackId: number): Promise<Track> {
+    const track = await tryFetch<Track>(`https://api.deezer.com/track/${trackId}`);
+
+    return track;
+  }
+
+  async getSimilarArtists(artistId: number): Promise<Artist[]> {
     const { data: similarArtists } = await tryFetch<{ data: Artist[] }>(
       `https://api.deezer.com/artist/${artistId}/related`,
     );
 
     return similarArtists;
+  }
+
+  async getRandomSimilarArtists(artistId: number, maxArtists): Promise<Artist[]> {
+    const similarArtists = await this.getSimilarArtists(artistId);
+
+    const shuffledSimilarArtists = shuffle(similarArtists);
+
+    return shuffledSimilarArtists.slice(0, maxArtists);
   }
 
   async searchPlaylist(query: string): Promise<Playlist[]> {

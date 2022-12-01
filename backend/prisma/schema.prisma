@@ -56,6 +56,10 @@ model GamePlayer {
   game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
   gameId String
 
+  socketId String
+
+  score Int @default(0)
+
   isOwner     Boolean @default(false)
   isConnected Boolean @default(false)
 
@@ -67,6 +71,9 @@ model GamePlayerAnswer {
 
   gamePlayer   GamePlayer @relation(fields: [gamePlayerId], references: [id], onDelete: Cascade)
   gamePlayerId String
+
+  gameAnswer   GameAnswer @relation(fields: [gameAnswerId], references: [id])
+  gameAnswerId String
 }
 
 model GameQuestion {
@@ -75,8 +82,9 @@ model GameQuestion {
   trackId Float // trackId is an integer but a BIG number so INT cant be used to save the value. Neither BIGINT (CANT SERIALIZE A BIG INT)
   isDone  Boolean @default(false)
 
-  game    Game         @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  gameId  String
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId String
+
   answers GameAnswer[]
 }
 
@@ -87,4 +95,6 @@ model GameAnswer {
   questionId String
 
   value String
+
+  GamePlayerAnswer GamePlayerAnswer[]
 }

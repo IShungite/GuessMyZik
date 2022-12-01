@@ -1,3 +1,4 @@
+import { Button } from 'flowbite-react';
 import React, { useEffect } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { UpdateGameDto } from '../../../@Types/Game';
@@ -30,9 +31,13 @@ export default function Waiting() {
         }
     }
 
-    useEffect(() => {
-        if (!auth) return;
+    const handleClickPlay = () => {
+        if (socketService.socket) {
+            gameService.startGame(socketService.socket)
+        }
+    }
 
+    useEffect(() => {
         handleJoinGameRoom();
     }, []);
 
@@ -71,7 +76,7 @@ export default function Waiting() {
                 </div>
             </div>
 
-            {isOwner && <div>You are the owner of the game!</div>}
+            {isOwner && <Button onClick={handleClickPlay} >Play!</Button>}
         </div>
     )
 }

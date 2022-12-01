@@ -17,6 +17,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.39.4",
     "react-router-dom": "^6.4.3",
+    "react-use-audio-player": "^1.2.6",
     "recoil": "^0.7.6",
     "socket.io-client": "^4.5.4",
     "usehooks-ts": "^2.9.1",

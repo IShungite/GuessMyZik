@@ -4,6 +4,7 @@ import {
 } from '@nestjs/websockets';
 import { Prisma } from '@prisma/client';
 import { Socket } from 'socket.io';
+import { DeezerService } from 'src/deezer/deezer.service';
 import { PrismaService } from 'src/prisma.service';
 import { SocketService } from 'src/socket.service';
 import { UsersService } from 'src/users/users.service';
@@ -43,5 +44,41 @@ export class GamesGateway {
     await this.gamesService.update(gameExists.id, updateGameDto);
 
     client.to(gameRoom).emit('on_game_update', { updateGameDto });
+  }
+
+  @SubscribeMessage('start_game')
+  async startGame(
+    @ConnectedSocket() client: Socket,
+  ) {
+    const gameRoom = getSocketGameRoom(client);
+
+    const game = await this.gamesService.startGame(gameRoom);
+
+    this.socketService.socket.to(gameRoom).emit('on_game_start', { game });
+
+    await this.nextSong(client);
+  }
+
+  @SubscribeMessage('next_song')
+  async nextSong(
+    @ConnectedSocket() client: Socket,
+  ) {
+    const gameRoom = getSocketGameRoom(client);
+
+    const { track, gameAnswers } = await this.gamesService.nextSong(gameRoom);
+
+    this.socketService.socket.to(gameRoom).emit('on_next_song', { trackPreview: track.preview, gameAnswers });
+  }
+
+  @SubscribeMessage('send_answer')
+  async sendAnswer(
+    @MessageBody() { answer }: { answer: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const gameRoom = getSocketGameRoom(client);
+
+    await this.gamesService.sendAnswer(gameRoom, client.id, answer);
+
+    client.to(gameRoom).emit('on_answer_sent');
   }
 }

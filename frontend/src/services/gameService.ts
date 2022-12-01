@@ -14,29 +14,49 @@ class GameService {
         });
     }
 
-    public async onJoinGameRoom(socket: Socket, listener: (gamePlayer: GamePlayer) => void) {
+    public onJoinGameRoom(socket: Socket, listener: (gamePlayer: GamePlayer) => void) {
         console.log("Add on_join_room listener");
         socket.on("on_join_room", ({ gamePlayer }: { gamePlayer: GamePlayer }) => listener(gamePlayer));
     }
 
-    public async updateGame(socket: Socket, updateGameDto: UpdateGameDto) {
+    public updateGame(socket: Socket, updateGameDto: UpdateGameDto) {
         socket.emit("update_game", { updateGameDto });
     }
 
-    public async startGame(socket: Socket) {
+    public startGame(socket: Socket) {
         socket.emit("start_game");
     }
 
-    public async onGameUpdate(socket: Socket, listener: (updateGameDto: UpdateGameDto) => void) {
+    public onStartGame(socket: Socket, listener: (game: Game) => void) {
+        socket.on("on_game_start", ({ game }: { game: Game }) => {
+            console.log("on_game_start");
+            listener(game)
+        }
+        );
+    }
+
+    public onGameUpdate(socket: Socket, listener: (updateGameDto: UpdateGameDto) => void) {
         socket.on("on_game_update", ({ updateGameDto }: { updateGameDto: UpdateGameDto }) => listener(updateGameDto));
     }
 
-    public async leaveGameRoom(socket: Socket, userId: string) {
+    public onNextSong(socket: Socket, listener: (trackPreview: string, gameAnswers: { value: string }[]) => void) {
+        socket.on("on_next_song", ({ trackPreview, gameAnswers }: { trackPreview: string, gameAnswers: { value: string }[] }) => listener(trackPreview, gameAnswers));
+    }
+
+    public nextSong(socket: Socket) {
+        socket.emit("next_song");
+    }
+
+    public sendAnswer(socket: Socket, answer: string) {
+        socket.emit("send_answer", { answer });
+    }
+
+    public leaveGameRoom(socket: Socket, userId: string) {
         socket.emit("leave_room", { userId });
         socket.removeAllListeners();
     }
 
-    public async onLeaveGameRoom(socket: Socket, listener: (gamePlayerId: string) => void) {
+    public onLeaveGameRoom(socket: Socket, listener: (gamePlayerId: string) => void) {
         socket.on("on_leave_room", ({ gamePlayerId }: { gamePlayerId: string }) => listener(gamePlayerId));
     }
 }
