@@ -19,9 +19,12 @@ class GameService {
         socket.on("on_join_room", ({ gamePlayer }: { gamePlayer: GamePlayer }) => listener(gamePlayer));
     }
 
-
     public async updateGame(socket: Socket, updateGameDto: UpdateGameDto) {
         socket.emit("update_game", { updateGameDto });
+    }
+
+    public async startGame(socket: Socket) {
+        socket.emit("start_game");
     }
 
     public async onGameUpdate(socket: Socket, listener: (updateGameDto: UpdateGameDto) => void) {

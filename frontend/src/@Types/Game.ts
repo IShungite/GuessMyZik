@@ -21,12 +21,12 @@ export type UpdateGameDto = Partial<Game>;
 
 
 export enum GameState {
-    WAITING,
-    PLAYING,
-    FINISHED,
+    WAITING = "WAITING",
+    PLAYING = "PLAYING",
+    FINISHED = "FINISHED",
 }
 
 export enum GameMode {
-    FIND_THE_ARTIST,
-    FIND_THE_TRACK,
+    FIND_THE_ARTIST = "FIND_THE_ARTIST",
+    FIND_THE_TRACK = "FIND_THE_TRACK",
 }
