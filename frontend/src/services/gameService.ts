@@ -15,7 +15,6 @@ class GameService {
     }
 
     public onJoinGameRoom(socket: Socket, listener: (gamePlayer: GamePlayer) => void) {
-        console.log("Add on_join_room listener");
         socket.on("on_join_room", ({ gamePlayer }: { gamePlayer: GamePlayer }) => listener(gamePlayer));
     }
 

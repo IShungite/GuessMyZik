@@ -2,11 +2,11 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import Game from '../../@Types/Game'
-import { GamePlayer } from '../../@Types/GamePlayer'
 import { authState } from '../../atoms/authAtom'
-import { gameState, isInGameState } from '../../atoms/gameAtom'
+import { isOwnerAtom } from '../../atoms/gameAtom'
 import { backendApiUrl } from '../../constants'
 import useFetch from '../../hooks/useFetch'
+import useUpdateGame from '../../hooks/useUpdateGame'
 import gameService from '../../services/gameService'
 import socketService from '../../services/socketService'
 
@@ -14,10 +14,11 @@ export default function PlayButton() {
     const { data, error, fetchData } = useFetch<Game>();
 
     const [isJoining, setIsJoining] = React.useState(false);
+    const setIsOwner = useSetRecoilState(isOwnerAtom);
 
-    const setGame = useSetRecoilState(gameState);
-    const setIsInGame = useSetRecoilState(isInGameState)
     const navigate = useNavigate();
+
+    const { updateGame } = useUpdateGame();
 
     const auth = useRecoilValue(authState);
 
@@ -31,8 +32,8 @@ export default function PlayButton() {
                 const gameJoined = await gameService.joinGameRoom(socketService.socket, game.joinCode, auth.id);
 
                 if (gameJoined) {
-                    setIsInGame(true);
-                    setGame(gameJoined);
+                    updateGame(gameJoined);
+                    setIsOwner(true);
                     navigate('/game');
                 }
 

@@ -1,17 +1,13 @@
 import React from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useSetRecoilState } from "recoil";
 import Playlist from "../../@Types/Deezer/Playlist";
-import Game, { UpdateGameDto } from "../../@Types/Game";
 import { deezerPlaylistsSearchTermState } from "../../atoms/deezerPlaylistsAtom";
-import { gameState } from "../../atoms/gameAtom";
-import { backendApiUrl } from "../../constants";
-import useFetch from "../../hooks/useFetch";
 
-export default function PlaylistCardButton({ playlist, updateGame }: { playlist: Playlist, updateGame: (updateGameDto: UpdateGameDto) => void }) {
+export default function PlaylistCardButton({ playlist, onClick }: { playlist: Playlist, onClick: (playlist: Playlist) => void }) {
   const setDeezerPlaylistSearchTerm = useSetRecoilState(deezerPlaylistsSearchTermState)
 
   const handleClickPlaylist = () => {
-    updateGame({ playlistId: playlist.id });
+    onClick(playlist);
     setDeezerPlaylistSearchTerm("");
   };
 

@@ -1,22 +1,13 @@
 import React from 'react'
 import { useRecoilValue } from 'recoil'
-import { UpdateGameDto } from '../../@Types/Game'
-import { authState } from '../../atoms/authAtom'
-import { gameState } from '../../atoms/gameAtom'
+import { isOwnerAtom } from '../../atoms/gameAtom'
 import PlaylistGrid from '../PlaylistsGrid/PlaylistGrid'
 import SearchPlaylistInput from '../SearchPlaylistInput/SearchPlaylistInput'
 import WaitingRoomCurrentPlaylist from '../WaitingRoomCurrentPlaylist/WaitingRoomCurrentPlaylist'
 
-export default function WaitingRoomPlaylist({ updateGame }: { updateGame: (updateGameDto: UpdateGameDto) => void }) {
+export default function WaitingRoomPlaylist() {
 
-    const game = useRecoilValue(gameState);
-    const auth = useRecoilValue(authState);
-
-    if (!game || !auth) return null;
-
-
-    const isOwner = game.gamePlayers.find((gp) => gp.isOwner && gp.userId === auth.id)
-
+    const isOwner = useRecoilValue(isOwnerAtom);
 
     return (
         <div>
@@ -30,12 +21,9 @@ export default function WaitingRoomPlaylist({ updateGame }: { updateGame: (updat
                     </div>
 
                     <SearchPlaylistInput />
-                    <PlaylistGrid updateGame={updateGame} />
+                    <PlaylistGrid />
                 </>
             )}
-
-
-
 
         </div>
     )

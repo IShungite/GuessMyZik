@@ -1,42 +1,45 @@
 import React from 'react'
-import { useRecoilValue } from 'recoil';
-import { UpdateGameDto } from '../../@Types/Game'
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { authState } from '../../atoms/authAtom';
-import { gameState } from '../../atoms/gameAtom';
+import { gameMaxSuggestionsAtom, isOwnerAtom } from '../../atoms/gameAtom';
+import gameService from '../../services/gameService';
+import socketService from '../../services/socketService';
 
-export default function WaitingRoomSuggestion({ updateGame }: { updateGame: (updateGameDto: UpdateGameDto) => void }) {
-    const game = useRecoilValue(gameState);
+export default function WaitingRoomSuggestion() {
     const auth = useRecoilValue(authState);
 
-    const [range, setRange] = React.useState(game.maxSuggestions);
+    const maxSuggestions = useRecoilValue(gameMaxSuggestionsAtom)
+    const isOwner = useRecoilValue(isOwnerAtom)
+
+    const [gameMaxSuggestions, setGameMaxSuggestions] = useRecoilState(gameMaxSuggestionsAtom)
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
 
         const newRange = parseInt(e.target.value);
-        updateGame({ maxSuggestions: newRange });
-        setRange(newRange)
+
+        if (socketService.socket) {
+            gameService.updateGame(socketService.socket, { maxSuggestions: newRange });
+            setGameMaxSuggestions(newRange);
+        }
     }
 
-    if (!game || !auth) return null;
-
-
-    const isOwner = game.gamePlayers.find((gp) => gp.isOwner && gp.userId === auth.id)
+    if (!auth) return null;
 
     return (
         <div>
             {isOwner ?
                 <>
-                    <label htmlFor="minmax-range" className="block mb-2">Suggestion number: {range}</label>
-                    <div className='flex flex-col'>
+                    <label htmlFor="minmax-range" className="block mb-2">Suggestion number: {gameMaxSuggestions}</label>
+                    <div className='flex flex-row items-center space-x-3'>
                         <div>1</div>
-                        <input id="minmax-range" type="range" min="1" max="8" value={range} step="1" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" onChange={handleChange} />
+                        <input id="minmax-range" type="range" min="1" max="8" value={gameMaxSuggestions} step="1" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" onChange={handleChange} />
                         <div>8</div>
                     </div>
                 </> :
-                <div>Suggestion number: {game.maxSuggestions}</div>
+                <div>Suggestion number: {maxSuggestions}</div>
             }
-
         </div>
     )
 }

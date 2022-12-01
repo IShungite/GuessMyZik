@@ -35,13 +35,11 @@ export class GamesGateway {
 
     const gameRoom = getSocketGameRoom(client);
 
-    const gameExists = await this.prismaService.game.findFirst({ where: { joinCode: gameRoom, state: 'WAITING' } });
+    const game = await this.prismaService.game.findFirstOrThrow({ where: { joinCode: gameRoom, state: 'WAITING' } });
 
-    if (!gameExists) {
-      throw new NotFoundException('Game not found');
-    }
+    await this.gamesService.update(game.id, updateGameDto);
 
-    await this.gamesService.update(gameExists.id, updateGameDto);
+    this.logger.log(`Client ${client.id} successfully updated the game`);
 
     client.to(gameRoom).emit('on_game_update', { updateGameDto });
   }

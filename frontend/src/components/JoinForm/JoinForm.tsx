@@ -2,7 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { authState } from '../../atoms/authAtom';
-import { gameState, isInGameState } from '../../atoms/gameAtom';
+import useUpdateGame from '../../hooks/useUpdateGame';
 import gameService from '../../services/gameService';
 import socketService from '../../services/socketService';
 
@@ -10,10 +10,9 @@ export default function JoinForm() {
     const [joinCode, setJoinCode] = React.useState('');
     const [isJoining, setIsJoining] = React.useState(false);
 
-    const setIsInGame = useSetRecoilState(isInGameState);
-    const setGame = useSetRecoilState(gameState);
-
     const auth = useRecoilValue(authState);
+
+    const { updateGame } = useUpdateGame();
 
     const navigate = useNavigate();
 
@@ -32,8 +31,7 @@ export default function JoinForm() {
             const gameJoined = await gameService.joinGameRoom(socket, joinCode, auth.id);
 
             if (gameJoined) {
-                setIsInGame(true);
-                setGame(gameJoined);
+                updateGame(gameJoined);
                 navigate('/game');
             }
 

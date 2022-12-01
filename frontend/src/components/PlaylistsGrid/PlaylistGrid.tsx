@@ -1,11 +1,25 @@
 import React from 'react';
-import { UpdateGameDto } from '../../@Types/Game';
+import { useSetRecoilState } from 'recoil';
+import Playlist from '../../@Types/Deezer/Playlist';
+import { gamePlaylistIdAtom } from '../../atoms/gameAtom';
 import UseDeezerPlaylists from '../../hooks/UseDeezerPlaylists';
-import PlaylistCard from '../PlaylistCard/PlaylistCard';
+import gameService from '../../services/gameService';
+import socketService from '../../services/socketService';
 import PlaylistCardButton from '../PlaylistCardButton/PlaylistCardButton';
 
-export default function PlaylistGrid({ updateGame }: { updateGame: (updateGameDto: UpdateGameDto) => void }) {
+export default function PlaylistGrid() {
   const { data, isLoading, error } = UseDeezerPlaylists();
+
+  const setGamePlaylistId = useSetRecoilState(gamePlaylistIdAtom);
+
+  const handlePlaylistClick = (playlist: Playlist) => {
+    console.log('handlePlaylistClick', playlist);
+    if (socketService.socket) {
+      console.log('handlePlaylistClick2');
+      gameService.updateGame(socketService.socket, { playlistId: playlist.id });
+      setGamePlaylistId(playlist.id);
+    }
+  }
 
   return (
     <div>
@@ -15,7 +29,7 @@ export default function PlaylistGrid({ updateGame }: { updateGame: (updateGameDt
 
       {data && (
         <div className='grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 '>
-          {data.map((playlist) => <PlaylistCardButton key={playlist.id} playlist={playlist} updateGame={updateGame} />)}
+          {data.map((playlist) => <PlaylistCardButton key={playlist.id} playlist={playlist} onClick={handlePlaylistClick} />)}
         </div>
       )}
     </div>
