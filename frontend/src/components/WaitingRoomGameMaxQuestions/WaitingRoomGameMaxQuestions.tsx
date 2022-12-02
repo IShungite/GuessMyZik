@@ -6,7 +6,7 @@ import socketService from '../../services/socketService';
 
 export default function WaitingRoomGameMaxQuestions() {
     const [maxQuestions, setMaxQuestions] = useRecoilState(gameMaxQuestionsAtom);
-    const maxPlaylistTracks = useRecoilValue(gameTotalPlaylistTrackAtom);
+    const totalPlaylistTracks = useRecoilValue(gameTotalPlaylistTrackAtom);
     const isOwner = useRecoilValue(isOwnerAtom)
 
 
@@ -28,8 +28,8 @@ export default function WaitingRoomGameMaxQuestions() {
                     <label htmlFor="minmax-range" className="block mb-2">Max questions: {maxQuestions}</label>
                     <div className='flex flex-row items-center space-x-3'>
                         <div>1</div>
-                        <input id="minmax-range" type="range" min="1" max={maxPlaylistTracks} value={maxQuestions} step="1" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" onChange={handleChange} />
-                        <div>{maxQuestions}</div>
+                        <input id="minmax-range" type="range" min="1" max={totalPlaylistTracks} value={maxQuestions} step="1" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" onChange={handleChange} />
+                        <div>{totalPlaylistTracks}</div>
                     </div>
                 </> :
                 <div>Max questions: {maxQuestions}</div>
