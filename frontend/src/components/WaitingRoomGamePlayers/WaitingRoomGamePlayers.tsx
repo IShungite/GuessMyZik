@@ -1,6 +1,6 @@
 import React from 'react'
 import { useRecoilValue } from 'recoil';
-import { GamePlayer } from '../../@Types/GamePlayer';
+import { GamePlayerFormat } from '../../@Types/GamePlayer';
 import { gamePlayersAtom } from '../../atoms/gameAtom';
 
 export default function WaitingRoomGamePlayers() {
@@ -10,8 +10,8 @@ export default function WaitingRoomGamePlayers() {
         <div>
             <div className='underline mb-2'>Players:</div>
             <div className='ml-5'>
-                {gamePlayers && gamePlayers.map((gamePlayer: GamePlayer) => {
-                    return <div key={gamePlayer.userId}>{gamePlayer.userId}</div>
+                {gamePlayers && gamePlayers.map((gamePlayer: GamePlayerFormat) => {
+                    return <div key={gamePlayer.username}>{gamePlayer.username}</div>
                 })}
             </div>
         </div>

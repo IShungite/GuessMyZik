@@ -46,7 +46,7 @@ export class RoomsGateway {
     }
 
     const previousGamePlayers = await this.prismaService.gamePlayer.findMany(
-      { where: { gameId: gameExists.id } },
+      { where: { gameId: gameExists.id }, select: { id: true, userId: true, user: { select: { username: true } } } },
     );
 
     const userHasAlreadyJoined = previousGamePlayers.find((gamePlayer) => gamePlayer.userId === userId);
@@ -68,14 +68,18 @@ export class RoomsGateway {
 
     await client.join(joinCode);
 
+    const previousGamePlayersFormat = previousGamePlayers.map((gp) => ({ id: gp.id, username: gp.user.username }));
+    const newGamePlayerFormat = { id: newGamePlayer.id, username: userExists.username };
+
     client.emit('join_success', {
       game: {
         ...gameExists,
-        gamePlayers: userHasAlreadyJoined ? previousGamePlayers : [...previousGamePlayers, newGamePlayer],
+        gamePlayers: userHasAlreadyJoined
+          ? previousGamePlayersFormat : [...previousGamePlayersFormat, newGamePlayerFormat],
       },
     });
 
-    client.to(joinCode).emit('on_join_room', { gamePlayer: newGamePlayer });
+    client.to(joinCode).emit('on_join_room', { gamePlayer: newGamePlayerFormat });
 
     this.logger.log(`client ${client.id} with userId ${userId} has successfully joined the room ${joinCode}`);
   }

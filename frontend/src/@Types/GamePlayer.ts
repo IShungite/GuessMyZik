@@ -1,6 +1,6 @@
 import GamePlayerAnswer from "./GamePlayerAnswer";
 
-export interface GamePlayer {
+export default interface GamePlayer {
     id: string;
 
     userId: string;
@@ -9,4 +9,9 @@ export interface GamePlayer {
     isOwner: boolean;
 
     gamePlayerAnswers: GamePlayerAnswer[];
+}
+
+export interface GamePlayerFormat {
+    id: string,
+    username: string
 }

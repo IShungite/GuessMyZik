@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from 'react'
 import { Navigate } from 'react-router-dom';
 import { useRecoilValue, useResetRecoilState, useSetRecoilState } from 'recoil';
 import Game from '../@Types/Game';
-import { GamePlayer } from '../@Types/GamePlayer';
+import { GamePlayerFormat } from '../@Types/GamePlayer';
 import { authState } from '../atoms/authAtom';
 import { gameAnswersAtom, gameGoodAnswerAtom, gameSelectedAnswerAtom, gameTrackPreviewAtom } from '../atoms/gameAtom';
 import gameService from '../services/gameService';
@@ -44,7 +44,7 @@ export default function useInGameLogic() {
 
     const handleJoinGameRoom = useCallback(() => {
         if (socketService.socket) {
-            gameService.onJoinGameRoom(socketService.socket, (gamePlayer: GamePlayer) => {
+            gameService.onJoinGameRoom(socketService.socket, (gamePlayer: GamePlayerFormat) => {
                 addGamePlayer(gamePlayer);
             });
         }

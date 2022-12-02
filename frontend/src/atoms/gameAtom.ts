@@ -1,6 +1,6 @@
 import { atom } from "recoil";
 import { GameMode, GameState } from "../@Types/Game";
-import { GamePlayer } from "../@Types/GamePlayer";
+import { GamePlayerFormat } from "../@Types/GamePlayer";
 
 export const gameStateAtom = atom<GameState>({
     key: 'gameState',
@@ -42,7 +42,7 @@ export const gameMaxPlayersAtom = atom<number>({
     default: undefined,
 })
 
-export const gamePlayersAtom = atom<GamePlayer[]>({
+export const gamePlayersAtom = atom<GamePlayerFormat[]>({
     key: 'gamePlayers',
     default: [],
 });

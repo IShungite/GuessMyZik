@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { useSetRecoilState } from 'recoil';
 import { UpdateGameDto } from '../@Types/Game'
-import { GamePlayer } from '../@Types/GamePlayer';
+import { GamePlayerFormat } from '../@Types/GamePlayer';
 import { gameJoinCodeAtom, gameMaxPlayersAtom, gameMaxQuestionsAtom, gameMaxSuggestionsAtom, gameModeAtom, gamePlayersAtom, gamePlaylistIdAtom, gameStateAtom, gameTotalPlaylistTrackAtom } from '../atoms/gameAtom';
 
 export default function useUpdateGame() {
@@ -60,7 +60,7 @@ export default function useUpdateGame() {
         });
     }, [])
 
-    const addGamePlayer = useCallback((gamePlayer: GamePlayer) => {
+    const addGamePlayer = useCallback((gamePlayer: GamePlayerFormat) => {
         setGamePlayers((prevGamePlayers) => {
             return [...prevGamePlayers, gamePlayer];
         });

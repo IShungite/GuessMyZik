@@ -1,6 +1,6 @@
 import { Socket } from "socket.io-client";
 import Game, { UpdateGameDto } from "../@Types/Game";
-import { GamePlayer } from "../@Types/GamePlayer";
+import { GamePlayerFormat } from "../@Types/GamePlayer";
 
 class GameService {
 
@@ -14,8 +14,8 @@ class GameService {
         });
     }
 
-    public onJoinGameRoom(socket: Socket, listener: (gamePlayer: GamePlayer) => void) {
-        socket.on("on_join_room", ({ gamePlayer }: { gamePlayer: GamePlayer }) => listener(gamePlayer));
+    public onJoinGameRoom(socket: Socket, listener: (gamePlayer: GamePlayerFormat) => void) {
+        socket.on("on_join_room", ({ gamePlayer }: { gamePlayer: GamePlayerFormat }) => listener(gamePlayer));
     }
 
     public updateGame(socket: Socket, updateGameDto: UpdateGameDto) {
