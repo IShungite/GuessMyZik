@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useSetRecoilState } from 'recoil';
 import { UpdateGameDto } from '../@Types/Game'
 import { GamePlayer } from '../@Types/GamePlayer';
@@ -14,8 +14,7 @@ export default function useUpdateGame() {
     const setGameMaxPlayers = useSetRecoilState(gameMaxPlayersAtom);
     const setGamePlayers = useSetRecoilState(gamePlayersAtom);
 
-    const updateGame = (updateGameDto: UpdateGameDto) => {
-        console.log(updateGameDto)
+    const updateGame = useCallback((updateGameDto: UpdateGameDto) => {
         if (updateGameDto.state) {
             setGameState(updateGameDto.state);
         }
@@ -47,19 +46,19 @@ export default function useUpdateGame() {
         if (updateGameDto.gamePlayers) {
             setGamePlayers(updateGameDto.gamePlayers);
         }
-    }
+    }, [])
 
-    const removeGamePlayer = (gamePlayerId: string) => {
+    const removeGamePlayer = useCallback((gamePlayerId: string) => {
         setGamePlayers((prevGamePlayers) => {
             return prevGamePlayers.filter((gp) => gp.id !== gamePlayerId);
         });
-    }
+    }, [])
 
-    const addGamePlayer = (gamePlayer: GamePlayer) => {
+    const addGamePlayer = useCallback((gamePlayer: GamePlayer) => {
         setGamePlayers((prevGamePlayers) => {
             return [...prevGamePlayers, gamePlayer];
         });
-    }
+    }, [])
 
     return { updateGame, removeGamePlayer, addGamePlayer }
 }

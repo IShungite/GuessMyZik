@@ -5,11 +5,16 @@ import {
 import Track from '@Types/Deezer/Track';
 import { DeezerService } from 'src/deezer/deezer.service';
 import { PrismaService } from 'src/prisma.service';
+import { SocketService } from 'src/socket.service';
 import shuffle from 'src/utils/shuffle';
 
 @Injectable()
 export class GamesService {
-  constructor(private readonly prisma: PrismaService, private readonly deezerService: DeezerService) { }
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly deezerService: DeezerService,
+    private readonly socketService: SocketService,
+  ) { }
 
   private logger: Logger = new Logger('GamesService');
 
@@ -18,7 +23,7 @@ export class GamesService {
     const playlist = await this.deezerService.getRandomPlaylist();
     const maxQuestions = Math.ceil(playlist.nb_tracks / 2);
 
-    const game = await this.prisma.game.create({
+    const game = await this.prismaService.game.create({
       data: { joinCode, playlistId: playlist.id, maxQuestions },
     });
 
@@ -30,13 +35,13 @@ export class GamesService {
   }
 
   async quitGame(joinCode: string, userId: string) {
-    const game = await this.prisma.game.findFirst({ where: { joinCode } });
+    const game = await this.prismaService.game.findFirst({ where: { joinCode } });
 
     if (!game) {
       throw new Error("Game doesn't exist");
     }
 
-    const gamePlayer = await this.prisma.gamePlayer.findFirst(
+    const gamePlayer = await this.prismaService.gamePlayer.findFirst(
       { where: { gameId: game.id, userId } },
     );
 
@@ -44,13 +49,13 @@ export class GamesService {
       throw new Error("GamePlayer doesn't exist");
     }
 
-    return this.prisma.gamePlayer.update(
+    return this.prismaService.gamePlayer.update(
       { where: { id: gamePlayer.id }, data: { isConnected: false } },
     );
   }
 
   async startGame(gameRoom: string) {
-    const game = await this.prisma.game.findFirst({ where: { joinCode: gameRoom } });
+    const game = await this.prismaService.game.findFirst({ where: { joinCode: gameRoom } });
 
     if (!game) {
       throw new Error("Game doesn't exist");
@@ -58,16 +63,16 @@ export class GamesService {
 
     const tracks = await this.deezerService.getRandomPlaylistTracks(game.playlistId, game.maxQuestions);
 
-    const gameQuestionsPromises = tracks.map((track) => this.prisma.gameQuestion.create({
+    const createGameQuestionsPromises = tracks.map((track) => this.prismaService.gameQuestion.create({
       data: {
         trackId: track.id,
         gameId: game.id,
       },
     }));
 
-    const gameQuestions = await Promise.all(gameQuestionsPromises);
+    await Promise.all(createGameQuestionsPromises);
 
-    const gameUpdated = await this.prisma.game.update({
+    const gameUpdated = await this.prismaService.game.update({
       where: { id: game.id },
       data: { state: GameState.PLAYING },
     });
@@ -76,25 +81,15 @@ export class GamesService {
   }
 
   async nextSong(gameRoom: string): Promise<{ gameAnswers: { value: string }[], track: Track }> {
-    this.logger.log(`Setting next song for game ${gameRoom}`);
+    const game = await this.prismaService.game.findFirstOrThrow(
+      { where: { joinCode: gameRoom, state: GameState.PLAYING } },
+    );
 
-    const game = await this.prisma.game.findFirst({ where: { joinCode: gameRoom, state: GameState.PLAYING } });
-
-    if (!game) {
-      throw new Error("Game doesn't exist");
-    }
-
-    const gameQuestion = await this.prisma.gameQuestion.findFirst({
+    const gameQuestion = await this.prismaService.gameQuestion.findFirstOrThrow({
       where: { gameId: game.id, isDone: false },
     });
 
-    if (!gameQuestion) {
-      throw new Error('No more questions');
-    }
-
     const track = await this.deezerService.getTrack(gameQuestion.trackId);
-
-    this.logger.log(`Next song is ${track.title}`);
 
     const similarArtists = await this.deezerService.getRandomSimilarArtists(track.artist.id, game.maxSuggestions - 1);
 
@@ -102,15 +97,18 @@ export class GamesService {
 
     const suggestionsShuffled = shuffle(suggestions);
 
-    const gameAnwserPromises = suggestionsShuffled.map((suggestion) => this.prisma.gameAnswer.create({
+    const createGameAnswerPromises = suggestionsShuffled.map((suggestion) => this.prismaService.gameAnswer.create({
       data: {
         questionId: gameQuestion.id,
         value: suggestion,
+        isRight: suggestion === track.artist.name,
       },
       select: { value: true },
     }));
 
-    const gameAnswers = await Promise.all(gameAnwserPromises);
+    const gameAnswers = await Promise.all(createGameAnswerPromises);
+
+    this.logger.log(`The next song from game ${gameRoom} gameQuestion ${gameQuestion.id} is ${track.title}`);
 
     return {
       gameAnswers,
@@ -118,26 +116,24 @@ export class GamesService {
     };
   }
 
-  async sendAnswer(gameRoom: string, socketId: string, answer: string) {
-    this.logger.log(`Sending answer ${answer} for game ${gameRoom}`);
+  async sendAnswer(gameId: string, socketId: string, answer: string) {
+    this.logger.log(`The player ${socketId} is sending answer ${answer} for game ${gameId}`);
 
-    const game = await this.prisma.game.findFirst({ where: { joinCode: gameRoom, state: GameState.PLAYING } });
+    const game = await this.prismaService.game.findFirstOrThrow(
+      { where: { id: gameId, state: GameState.PLAYING } },
+    );
 
-    if (!game) {
-      throw new Error("Game doesn't exist");
-    }
+    const gamePlayer = await this.prismaService.gamePlayer.findFirstOrThrow({ where: { gameId: game.id, socketId } });
 
-    const gamePlayer = await this.prisma.gamePlayer.findFirstOrThrow({ where: { gameId: game.id, socketId } });
-
-    const gameQuestion = await this.prisma.gameQuestion.findFirstOrThrow({
+    const gameQuestion = await this.prismaService.gameQuestion.findFirstOrThrow({
       where: { gameId: game.id, isDone: false },
     });
 
-    const gameAnswer = await this.prisma.gameAnswer.findFirstOrThrow({
+    const gameAnswer = await this.prismaService.gameAnswer.findFirstOrThrow({
       where: { questionId: gameQuestion.id, value: answer },
     });
 
-    const answerAlreadySent = await this.prisma.gamePlayerAnswer.findFirst({
+    const answerAlreadySent = await this.prismaService.gamePlayerAnswer.findFirst({
       where: { gameAnswerId: gameAnswer.id, gamePlayerId: gamePlayer.id },
     });
 
@@ -145,47 +141,171 @@ export class GamesService {
       throw new Error('Answer already sent');
     }
 
-    await this.prisma.gamePlayerAnswer.create({
+    await this.prismaService.gamePlayerAnswer.create({
       data: {
         gamePlayerId: gamePlayer.id,
         gameAnswerId: gameAnswer.id,
       },
     });
 
-    this.logger.log(`Answer ${answer} sent for game ${gameRoom}`);
+    this.logger.log(`The player ${socketId} has sent answer ${answer} for game ${gameId}`);
+  }
+
+  async allPlayersAnswered(gameId: string) {
+    this.logger.log(`Checking if all players answered for game ${gameId}`);
+
+    const game = await this.prismaService.game.findUniqueOrThrow({ where: { id: gameId } });
+
+    const gameQuestion = await this.prismaService.gameQuestion.findFirstOrThrow({
+      where: { gameId: game.id, isDone: false },
+    });
+
+    const gamePlayers = await this.prismaService.gamePlayer.findMany({ where: { gameId: game.id } });
+
+    const gamePlayersAnswers = await this.prismaService.gamePlayerAnswer.findMany({
+      where: { gameAnswer: { questionId: gameQuestion.id } },
+    });
+
+    const allPlayersAnswered = gamePlayers.length === gamePlayersAnswers.length;
+
+    this.logger.log(`All players answered for game ${gameId} : ${allPlayersAnswered}`);
+
+    return allPlayersAnswered;
+  }
+
+  async getGoodAnswer(gameId: string) {
+    const game = await this.prismaService.game.findUniqueOrThrow({ where: { id: gameId } });
+
+    const gameQuestion = await this.prismaService.gameQuestion.findFirstOrThrow({
+      where: { gameId: game.id, isDone: false },
+    });
+
+    const gameAnswer = await this.prismaService.gameAnswer.findFirstOrThrow({
+      where: { questionId: gameQuestion.id, isRight: true },
+      select: { value: true },
+    });
+
+    this.logger.log(`Good answer for game ${gameId} is ${gameAnswer.value}`);
+
+    return gameAnswer;
+  }
+
+  async checkGameState(gameId: string) {
+    this.logger.log(`Checking game state for game ${gameId}`);
+
+    const game = await this.prismaService.game.findUniqueOrThrow({ where: { id: gameId } });
+
+    const isRoundEnded = await this.isRoundEnded(game.id);
+
+    if (!isRoundEnded) return;
+
+    const isGameEnded = await this.isGameEnded(game.id);
+
+    if (isGameEnded) {
+      this.gameEnd(game.id);
+      return;
+    }
+
+    this.roundEnd(game.id);
+  }
+
+  async gameEnd(gameId: string) {
+    const game = await this.prismaService.game.findUniqueOrThrow({ where: { id: gameId } });
+
+    const goodAnswer = await this.getGoodAnswer(game.id);
+
+    await this.setGameQuestionDone(game.id);
+
+    const updateGameDto: Prisma.GameUpdateInput = {
+      state: GameState.FINISHED,
+    };
+
+    await this.prismaService.game.update({
+      where: { id: game.id },
+      data: updateGameDto,
+    });
+
+    this.socketService.socket.to(game.joinCode).emit('on_game_end', { updateGameDto, goodAnswer });
+  }
+
+  async roundEnd(gameId: string) {
+    const game = await this.prismaService.game.findUniqueOrThrow({ where: { id: gameId } });
+
+    const goodAnswer = await this.getGoodAnswer(game.id);
+
+    await this.setGameQuestionDone(game.id);
+
+    this.socketService.socket.to(game.joinCode).emit('on_show_round_result', { goodAnswer });
+  }
+
+  async isRoundEnded(gameId: string) {
+    this.logger.log(`Checking if round is ended for game ${gameId}`);
+
+    const allPlayersAnswered = await this.allPlayersAnswered(gameId);
+
+    return allPlayersAnswered;
+  }
+
+  async isGameEnded(gameId: string) {
+    this.logger.log(`Checking if game is ended for game ${gameId}`);
+
+    const game = await this.prismaService.game.findUniqueOrThrow({ where: { id: gameId } });
+
+    const gameQuestions = await this.prismaService.gameQuestion.findMany({ where: { gameId: game.id } });
+
+    const gameQuestionsDone = gameQuestions.filter((gameQuestion) => gameQuestion.isDone);
+
+    const gameIsEnded = gameQuestionsDone.length === gameQuestions.length;
+
+    this.logger.log(`Game is ended for game ${gameId} : ${gameIsEnded}`);
+
+    return gameIsEnded;
+  }
+
+  async setGameQuestionDone(gameId: string) {
+    const gameQuestion = await this.prismaService.gameQuestion.findFirstOrThrow({
+      where: { gameId, isDone: false },
+    });
+
+    this.logger.log(`Setting game question ${gameQuestion.id} as done for game ${gameId}`);
+
+    await this.prismaService.gameQuestion.update({
+      where: { id: gameQuestion.id },
+      data: { isDone: true },
+    });
   }
 
   async findAll() {
-    return this.prisma.game.findMany();
+    return this.prismaService.game.findMany();
   }
 
   async findOne(where: Prisma.GameWhereUniqueInput) {
-    return this.prisma.game.findUnique({ where });
+    return this.prismaService.game.findUnique({ where });
   }
 
   async findGamePlayers(where: Prisma.GamePlayerWhereInput) {
-    return this.prisma.gamePlayer.findMany({
+    return this.prismaService.gamePlayer.findMany({
       where,
     });
   }
 
   async findFirst(where: Prisma.GameWhereInput) {
-    return this.prisma.game.findFirstOrThrow({ where });
+    return this.prismaService.game.findFirstOrThrow({ where });
   }
 
   async update(id: string, updateGameDto: Prisma.GameUpdateInput) {
-    return this.prisma.game.update({
+    return this.prismaService.game.update({
       where: { id },
       data: updateGameDto,
     });
   }
 
   async remove(id: string) {
-    return this.prisma.game.delete({ where: { id } });
+    return this.prismaService.game.delete({ where: { id } });
   }
 
   async removeAll() {
-    const { count } = await this.prisma.game.deleteMany();
+    const { count } = await this.prismaService.game.deleteMany();
     return count;
   }
 }

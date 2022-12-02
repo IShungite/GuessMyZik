@@ -1,10 +1,10 @@
-import { Logger, NotFoundException } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/indent */
+import { Logger } from '@nestjs/common';
 import {
   ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway,
 } from '@nestjs/websockets';
-import { Prisma } from '@prisma/client';
+import { GameState, Prisma } from '@prisma/client';
 import { Socket } from 'socket.io';
-import { DeezerService } from 'src/deezer/deezer.service';
 import { PrismaService } from 'src/prisma.service';
 import { SocketService } from 'src/socket.service';
 import { UsersService } from 'src/users/users.service';
@@ -75,8 +75,14 @@ export class GamesGateway {
   ) {
     const gameRoom = getSocketGameRoom(client);
 
-    await this.gamesService.sendAnswer(gameRoom, client.id, answer);
+    const game = await this.prismaService.game.findFirstOrThrow(
+      { where: { joinCode: gameRoom, state: GameState.PLAYING } },
+    );
+
+    await this.gamesService.sendAnswer(game.id, client.id, answer);
 
     client.to(gameRoom).emit('on_answer_sent');
+
+    await this.gamesService.checkGameState(game.id);
   }
 }

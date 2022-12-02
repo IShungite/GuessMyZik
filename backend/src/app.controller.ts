@@ -30,8 +30,6 @@ export class AppController {
   async getHello(@GetUser() user: IUserRequest) {
     const playlist = await this.deezerService.getRandomPlaylist();
 
-    console.log(playlist);
-
     return this.appService.getHello();
   }
 }

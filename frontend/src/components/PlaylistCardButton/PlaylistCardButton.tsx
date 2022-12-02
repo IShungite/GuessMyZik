@@ -3,7 +3,12 @@ import { useSetRecoilState } from "recoil";
 import Playlist from "../../@Types/Deezer/Playlist";
 import { deezerPlaylistsSearchTermState } from "../../atoms/deezerPlaylistsAtom";
 
-export default function PlaylistCardButton({ playlist, onClick }: { playlist: Playlist, onClick: (playlist: Playlist) => void }) {
+interface Props {
+  playlist: Playlist,
+  onClick: (playlist: Playlist) => void
+}
+
+export default function PlaylistCardButton({ playlist, onClick }: Props) {
   const setDeezerPlaylistSearchTerm = useSetRecoilState(deezerPlaylistsSearchTermState)
 
   const handleClickPlaylist = () => {
