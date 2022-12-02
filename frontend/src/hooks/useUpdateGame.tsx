@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import { useSetRecoilState } from 'recoil';
 import { UpdateGameDto } from '../@Types/Game'
 import { GamePlayer } from '../@Types/GamePlayer';
-import { gameJoinCodeAtom, gameMaxPlayersAtom, gameMaxQuestionsAtom, gameMaxSuggestionsAtom, gameModeAtom, gamePlayersAtom, gamePlaylistIdAtom, gameStateAtom } from '../atoms/gameAtom';
+import { gameJoinCodeAtom, gameMaxPlayersAtom, gameMaxQuestionsAtom, gameMaxSuggestionsAtom, gameModeAtom, gamePlayersAtom, gamePlaylistIdAtom, gameStateAtom, gameTotalPlaylistTrackAtom } from '../atoms/gameAtom';
 
 export default function useUpdateGame() {
     const setGameState = useSetRecoilState(gameStateAtom);
@@ -13,6 +13,7 @@ export default function useUpdateGame() {
     const setGameMaxSuggestions = useSetRecoilState(gameMaxSuggestionsAtom);
     const setGameMaxPlayers = useSetRecoilState(gameMaxPlayersAtom);
     const setGamePlayers = useSetRecoilState(gamePlayersAtom);
+    const setGameTotalPlaylistTracks = useSetRecoilState(gameTotalPlaylistTrackAtom)
 
     const updateGame = useCallback((updateGameDto: UpdateGameDto) => {
         if (updateGameDto.state) {
@@ -46,6 +47,11 @@ export default function useUpdateGame() {
         if (updateGameDto.gamePlayers) {
             setGamePlayers(updateGameDto.gamePlayers);
         }
+
+        if (updateGameDto.totalPlaylistTrack) {
+            setGameTotalPlaylistTracks(updateGameDto.totalPlaylistTrack);
+        }
+
     }, [])
 
     const removeGamePlayer = useCallback((gamePlayerId: string) => {

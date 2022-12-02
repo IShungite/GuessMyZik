@@ -24,7 +24,9 @@ export class GamesService {
     const maxQuestions = Math.ceil(playlist.nb_tracks / 2);
 
     const game = await this.prismaService.game.create({
-      data: { joinCode, playlistId: playlist.id, maxQuestions },
+      data: {
+        joinCode, playlistId: playlist.id, maxQuestions, totalPlaylistTrack: playlist.nb_tracks,
+      },
     });
 
     return game;

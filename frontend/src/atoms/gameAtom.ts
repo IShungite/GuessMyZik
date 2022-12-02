@@ -27,6 +27,11 @@ export const gameMaxQuestionsAtom = atom<number>({
     default: undefined,
 })
 
+export const gameTotalPlaylistTrackAtom = atom<number>({
+    key: 'gameTotalPlaylistTrack',
+    default: undefined,
+})
+
 export const gameMaxSuggestionsAtom = atom<number>({
     key: 'gameMaxSuggestions',
     default: undefined,
