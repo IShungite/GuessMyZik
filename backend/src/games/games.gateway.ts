@@ -83,6 +83,6 @@ export class GamesGateway {
 
     client.to(gameRoom).emit('on_answer_sent');
 
-    await this.gamesService.checkGameState(game.id);
+    await this.gamesService.UpdateGameState(game.id);
   }
 }

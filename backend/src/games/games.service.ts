@@ -175,11 +175,11 @@ export class GamesService {
     return allPlayersAnswered;
   }
 
-  async getGoodAnswer(gameId: string) {
+  async getLastGoodAnswer(gameId: string) {
     const game = await this.prismaService.game.findUniqueOrThrow({ where: { id: gameId } });
 
     const gameQuestion = await this.prismaService.gameQuestion.findFirstOrThrow({
-      where: { gameId: game.id, isDone: false },
+      where: { gameId: game.id, isDone: true },
     });
 
     const gameAnswer = await this.prismaService.gameAnswer.findFirstOrThrow({
@@ -192,8 +192,8 @@ export class GamesService {
     return gameAnswer;
   }
 
-  async checkGameState(gameId: string) {
-    this.logger.log(`Checking game state for game ${gameId}`);
+  async UpdateGameState(gameId: string) {
+    this.logger.log(`Checking update game state for game ${gameId}`);
 
     const game = await this.prismaService.game.findUniqueOrThrow({ where: { id: gameId } });
 
@@ -201,43 +201,37 @@ export class GamesService {
 
     if (!isRoundEnded) return;
 
+    await this.setGameQuestionDone(game.id);
+
     const isGameEnded = await this.isGameEnded(game.id);
 
     if (isGameEnded) {
-      this.gameEnd(game.id);
+      this.gameEnd(game.id, game.joinCode);
       return;
     }
 
-    this.roundEnd(game.id);
+    await this.roundEnd(game.id, game.joinCode);
   }
 
-  async gameEnd(gameId: string) {
-    const game = await this.prismaService.game.findUniqueOrThrow({ where: { id: gameId } });
-
-    const goodAnswer = await this.getGoodAnswer(game.id);
-
-    await this.setGameQuestionDone(game.id);
+  async gameEnd(gameId: string, joinCode: string) {
+    const goodAnswer = await this.getLastGoodAnswer(gameId);
 
     const updateGameDto: Prisma.GameUpdateInput = {
       state: GameState.FINISHED,
     };
 
     await this.prismaService.game.update({
-      where: { id: game.id },
+      where: { id: gameId },
       data: updateGameDto,
     });
 
-    this.socketService.socket.to(game.joinCode).emit('on_game_end', { updateGameDto, goodAnswer });
+    this.socketService.socket.to(joinCode).emit('on_game_end', { updateGameDto, goodAnswer });
   }
 
-  async roundEnd(gameId: string) {
-    const game = await this.prismaService.game.findUniqueOrThrow({ where: { id: gameId } });
+  async roundEnd(gameId: string, joinCode: string) {
+    const goodAnswer = await this.getLastGoodAnswer(gameId);
 
-    const goodAnswer = await this.getGoodAnswer(game.id);
-
-    await this.setGameQuestionDone(game.id);
-
-    this.socketService.socket.to(game.joinCode).emit('on_show_round_result', { goodAnswer });
+    this.socketService.socket.to(joinCode).emit('on_show_round_result', { goodAnswer });
   }
 
   async isRoundEnded(gameId: string) {
