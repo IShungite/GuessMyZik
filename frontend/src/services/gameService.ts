@@ -28,7 +28,6 @@ class GameService {
 
     public onStartGame(socket: Socket, listener: (game: Game) => void) {
         socket.on("on_game_start", ({ game }: { game: Game }) => {
-            console.log("on_game_start");
             listener(game)
         }
         );
@@ -40,6 +39,14 @@ class GameService {
 
     public onNextSong(socket: Socket, listener: (trackPreview: string, gameAnswers: { value: string }[]) => void) {
         socket.on("on_next_song", ({ trackPreview, gameAnswers }: { trackPreview: string, gameAnswers: { value: string }[] }) => listener(trackPreview, gameAnswers));
+    }
+
+    public onShowRoundResult(socket: Socket, listener: (goodAnswer: { value: string }) => void) {
+        socket.on("on_show_round_result", ({ goodAnswer }: { goodAnswer: { value: string } }) => listener(goodAnswer));
+    }
+
+    public onGameEnd(socket: Socket, listener: (updateGameDto: UpdateGameDto, goodAnswer: { value: string }) => void) {
+        socket.on("on_game_end", ({ updateGameDto, goodAnswer }: { updateGameDto: UpdateGameDto, goodAnswer: { value: string } }) => listener(updateGameDto, goodAnswer));
     }
 
     public nextSong(socket: Socket) {

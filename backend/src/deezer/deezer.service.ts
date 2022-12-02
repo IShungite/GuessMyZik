@@ -65,8 +65,6 @@ export class DeezerService {
 
     const randomPlaylist = playlists[Math.floor(Math.random() * playlists.length)];
 
-    console.log(randomPlaylist);
-
     return randomPlaylist;
   }
 }

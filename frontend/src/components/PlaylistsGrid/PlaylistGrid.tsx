@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSetRecoilState } from 'recoil';
 import Playlist from '../../@Types/Deezer/Playlist';
-import { gamePlaylistIdAtom } from '../../atoms/gameAtom';
+import { gamePlaylistIdAtom, gameTotalPlaylistTrackAtom } from '../../atoms/gameAtom';
 import UseDeezerPlaylists from '../../hooks/UseDeezerPlaylists';
 import gameService from '../../services/gameService';
 import socketService from '../../services/socketService';
@@ -11,11 +11,13 @@ export default function PlaylistGrid() {
   const { data, isLoading, error } = UseDeezerPlaylists();
 
   const setGamePlaylistId = useSetRecoilState(gamePlaylistIdAtom);
+  const setGameTotalPlaylistTracks = useSetRecoilState(gameTotalPlaylistTrackAtom);
 
   const handlePlaylistClick = (playlist: Playlist) => {
     if (socketService.socket) {
-      gameService.updateGame(socketService.socket, { playlistId: playlist.id });
+      gameService.updateGame(socketService.socket, { playlistId: playlist.id, totalPlaylistTrack: playlist.nb_tracks });
       setGamePlaylistId(playlist.id);
+      setGameTotalPlaylistTracks(playlist.nb_tracks);
     }
   }
 

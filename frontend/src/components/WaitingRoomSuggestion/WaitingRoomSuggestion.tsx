@@ -6,9 +6,6 @@ import gameService from '../../services/gameService';
 import socketService from '../../services/socketService';
 
 export default function WaitingRoomSuggestion() {
-    const auth = useRecoilValue(authState);
-
-    const maxSuggestions = useRecoilValue(gameMaxSuggestionsAtom)
     const isOwner = useRecoilValue(isOwnerAtom)
 
     const [gameMaxSuggestions, setGameMaxSuggestions] = useRecoilState(gameMaxSuggestionsAtom)
@@ -25,8 +22,6 @@ export default function WaitingRoomSuggestion() {
         }
     }
 
-    if (!auth) return null;
-
     return (
         <div>
             {isOwner ?
@@ -38,7 +33,7 @@ export default function WaitingRoomSuggestion() {
                         <div>8</div>
                     </div>
                 </> :
-                <div>Suggestion number: {maxSuggestions}</div>
+                <div>Suggestion number: {gameMaxSuggestions}</div>
             }
         </div>
     )
