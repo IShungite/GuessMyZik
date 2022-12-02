@@ -94,7 +94,8 @@ model GameAnswer {
   question   GameQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId String
 
-  value String
+  value   String
+  isRight Boolean
 
   GamePlayerAnswer GamePlayerAnswer[]
 }
