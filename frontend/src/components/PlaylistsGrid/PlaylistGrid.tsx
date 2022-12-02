@@ -13,9 +13,7 @@ export default function PlaylistGrid() {
   const setGamePlaylistId = useSetRecoilState(gamePlaylistIdAtom);
 
   const handlePlaylistClick = (playlist: Playlist) => {
-    console.log('handlePlaylistClick', playlist);
     if (socketService.socket) {
-      console.log('handlePlaylistClick2');
       gameService.updateGame(socketService.socket, { playlistId: playlist.id });
       setGamePlaylistId(playlist.id);
     }
