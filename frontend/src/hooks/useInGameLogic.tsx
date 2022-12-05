@@ -4,7 +4,7 @@ import { useRecoilValue, useResetRecoilState, useSetRecoilState } from 'recoil';
 import Game from '../@Types/Game';
 import { GamePlayerFormat } from '../@Types/GamePlayer';
 import { authState } from '../atoms/authAtom';
-import { gameAnswersAtom, gameGoodAnswerAtom, gameSelectedAnswerAtom, gameTrackPreviewAtom } from '../atoms/gameAtom';
+import { gameAnswersAtom, gameGoodAnswerAtom, gameSelectedAnswerAtom, gameTimeRemainingAtom, gameTrackPreviewAtom } from '../atoms/gameAtom';
 import gameService from '../services/gameService';
 import socketService from '../services/socketService';
 import useUpdateGame from './useUpdateGame';
@@ -17,6 +17,7 @@ export default function useInGameLogic() {
     const resetGoodAnswer = useResetRecoilState(gameGoodAnswerAtom)
     const resetSelectedAnswer = useResetRecoilState(gameSelectedAnswerAtom)
     const setGameGoodAnswer = useSetRecoilState(gameGoodAnswerAtom);
+    const setTimeRemaining = useSetRecoilState(gameTimeRemainingAtom);
 
     const handleGameUpdate = useCallback(() => {
         if (socketService.socket) {
@@ -77,6 +78,14 @@ export default function useInGameLogic() {
                 setGameGoodAnswer(goodAnswer);
             });
         }
+    }, [updateGame])
+
+    const handleTimerUpdate = useCallback(() => {
+        if (socketService.socket) {
+            gameService.onTimerUpdate(socketService.socket, (timeRemaining) => {
+                setTimeRemaining(timeRemaining);
+            });
+        }
 
     }, [updateGame])
 
@@ -90,6 +99,7 @@ export default function useInGameLogic() {
         handleNextSong();
         handleShowRoundResult();
         handleGameEnd();
+        handleTimerUpdate();
 
         return () => {
             if (socketService.socket) {

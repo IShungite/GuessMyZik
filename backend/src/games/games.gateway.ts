@@ -63,9 +63,10 @@ export class GamesGateway {
   ) {
     const gameRoom = getSocketGameRoom(client);
 
-    const { track, gameAnswers } = await this.gamesService.nextSong(gameRoom);
+    const { track, gameAnswers, game } = await this.gamesService.nextSong(gameRoom);
 
     this.socketService.socket.to(gameRoom).emit('on_next_song', { trackPreview: track.preview, gameAnswers });
+    this.gamesService.startTimer(gameRoom, game.id);
   }
 
   @SubscribeMessage('send_answer')

@@ -6,6 +6,7 @@ import Track from '@Types/Deezer/Track';
 import { DeezerService } from 'src/deezer/deezer.service';
 import { PrismaService } from 'src/prisma.service';
 import { SocketService } from 'src/socket.service';
+import Timer from 'src/Timer/Timer';
 import shuffle from 'src/utils/shuffle';
 
 @Injectable()
@@ -17,6 +18,8 @@ export class GamesService {
   ) { }
 
   private logger: Logger = new Logger('GamesService');
+
+  private timers: Map<string, Timer> = new Map();
 
   async create(): Promise<Game> {
     const joinCode = this.createJoinCode();
@@ -82,7 +85,7 @@ export class GamesService {
     return gameUpdated;
   }
 
-  async nextSong(gameRoom: string): Promise<{ gameAnswers: { value: string }[], track: Track }> {
+  async nextSong(gameRoom: string): Promise<{ gameAnswers: { value: string }[], track: Track, game: Game }> {
     const game = await this.prismaService.game.findFirstOrThrow(
       { where: { joinCode: gameRoom, state: GameState.PLAYING } },
     );
@@ -115,6 +118,7 @@ export class GamesService {
     return {
       gameAnswers,
       track,
+      game,
     };
   }
 
@@ -192,25 +196,27 @@ export class GamesService {
     return gameAnswer;
   }
 
-  async UpdateGameState(gameId: string) {
+  async UpdateGameState(gameId: string, options?: { forceRoundEnd: boolean }) {
     this.logger.log(`Checking update game state for game ${gameId}`);
 
-    const game = await this.prismaService.game.findUniqueOrThrow({ where: { id: gameId } });
+    const game = await this.prismaService.game.findFirstOrThrow({ where: { id: gameId, state: GameState.PLAYING } });
 
-    const isRoundEnded = await this.isRoundEnded(game.id);
+    const isRoundEnded = options?.forceRoundEnd || await this.isRoundEnded(game.id);
 
     if (!isRoundEnded) return;
 
-    await this.setGameQuestionDone(game.id);
+    await this.setGameQuestionDone(gameId);
 
-    const isGameEnded = await this.isGameEnded(game.id);
+    this.stopTimer(gameId);
+
+    const isGameEnded = await this.isGameEnded(gameId);
 
     if (isGameEnded) {
-      this.gameEnd(game.id, game.joinCode);
+      this.gameEnd(gameId, game.joinCode);
       return;
     }
 
-    await this.roundEnd(game.id, game.joinCode);
+    await this.roundEnd(gameId, game.joinCode);
   }
 
   async gameEnd(gameId: string, joinCode: string) {
@@ -269,6 +275,34 @@ export class GamesService {
       where: { id: gameQuestion.id },
       data: { isDone: true },
     });
+  }
+
+  startTimer(gameRoom: string, gameId: string) {
+    this.logger.log(`Starting timer for game ${gameId}`);
+
+    const timer = new Timer({
+      duration: 15,
+      onTimerUpdate: (timeRemaining: number) => {
+        this.socketService.socket.to(gameRoom).emit('on_timer_update', { timeRemaining });
+      },
+      onTimerEnd: () => {
+        this.UpdateGameState(gameId, { forceRoundEnd: true });
+      },
+    });
+
+    timer.start();
+
+    this.timers.set(gameId, timer);
+  }
+
+  stopTimer(gameId: string) {
+    this.logger.log(`Stopping timer for game ${gameId}`);
+    const timer = this.timers.get(gameId);
+
+    if (timer) {
+      timer.stop();
+      this.timers.delete(gameId);
+    }
   }
 
   async findAll() {

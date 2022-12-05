@@ -71,3 +71,8 @@ export const gameSelectedAnswerAtom = atom<string>({
     key: 'gameSelectedAnswer',
     default: undefined,
 });
+
+export const gameTimeRemainingAtom = atom<number>({
+    key: 'gameTimeRemaining',
+    default: undefined,
+});

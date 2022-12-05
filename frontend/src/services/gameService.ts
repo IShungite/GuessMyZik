@@ -57,6 +57,10 @@ class GameService {
         socket.emit("send_answer", { answer });
     }
 
+    public onTimerUpdate(socket: Socket, listener: (timeRemaining: number) => void) {
+        socket.on("on_timer_update", ({ timeRemaining }: { timeRemaining: number }) => listener(timeRemaining));
+    }
+
     public leaveGameRoom(socket: Socket, userId: string) {
         socket.emit("leave_room", { userId });
         socket.removeAllListeners();
