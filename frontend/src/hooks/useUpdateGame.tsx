@@ -66,5 +66,19 @@ export default function useUpdateGame() {
         });
     }, [])
 
-    return { updateGame, removeGamePlayer, addGamePlayer }
+    const updateGamePlayers = (gamePlayers: Partial<GamePlayerFormat> & { id: string }[]) => {
+        setGamePlayers((prevGamePlayers) => prevGamePlayers.map((gamePlayer) => {
+            const newGamePlayerData = gamePlayers.find((gp) => gp.id)
+
+            if (!newGamePlayerData) return gamePlayer;
+
+            const { id, ...rest } = newGamePlayerData
+
+            return {
+                ...gamePlayer, ...rest
+            }
+        }))
+    }
+
+    return { updateGame, removeGamePlayer, addGamePlayer, updateGamePlayers }
 }

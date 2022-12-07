@@ -41,8 +41,8 @@ class GameService {
         socket.on("on_next_song", ({ trackPreview, gameAnswers }: { trackPreview: string, gameAnswers: { value: string }[] }) => listener(trackPreview, gameAnswers));
     }
 
-    public onShowRoundResult(socket: Socket, listener: (goodAnswer: { value: string }) => void) {
-        socket.on("on_show_round_result", ({ goodAnswer }: { goodAnswer: { value: string } }) => listener(goodAnswer));
+    public onShowRoundResult(socket: Socket, listener: (goodAnswer: { value: string }, scoresWithGamePlayerId: { id: string, score: number }[]) => void) {
+        socket.on("on_show_round_result", ({ goodAnswer, scoresWithGamePlayerId }: { goodAnswer: { value: string }, scoresWithGamePlayerId: { id: string, score: number }[] }) => listener(goodAnswer, scoresWithGamePlayerId));
     }
 
     public onGameEnd(socket: Socket, listener: (updateGameDto: UpdateGameDto, goodAnswer: { value: string }) => void) {

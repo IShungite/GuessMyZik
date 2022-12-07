@@ -1,7 +1,7 @@
 import { Button } from 'flowbite-react';
 import React from 'react'
 import { useRecoilValue } from 'recoil';
-import { gameAnswersAtom, gameGoodAnswerAtom, gameSelectedAnswerAtom } from '../../atoms/gameAtom';
+import { gameAnswersAtom, gameGoodAnswerAtom, gamePlayersAtom, gameSelectedAnswerAtom } from '../../atoms/gameAtom';
 import gameService from '../../services/gameService';
 import socketService from '../../services/socketService';
 
@@ -9,6 +9,7 @@ export default function QuestionResultScreen() {
     const goodAnswer = useRecoilValue(gameGoodAnswerAtom);
     const answers = useRecoilValue(gameAnswersAtom);
     const selectedAnswer = useRecoilValue(gameSelectedAnswerAtom);
+    const gamePlayers = useRecoilValue(gamePlayersAtom);
 
 
     const handleClickNextQuestion = () => {
@@ -20,34 +21,50 @@ export default function QuestionResultScreen() {
     return (
         <div>
             <div>
+                <div>
 
-                {answers.map((answer) => {
-                    const isGoodAnswer = answer.value === goodAnswer.value;
+                    {answers.map((answer) => {
+                        const isGoodAnswer = answer.value === goodAnswer.value;
 
-                    const isSelectedAnswer = answer.value === selectedAnswer;
+                        const isSelectedAnswer = answer.value === selectedAnswer;
 
-                    let color = "bg-gray-200";
-                    if (isGoodAnswer) {
-                        if (isSelectedAnswer) {
-                            color = "bg-green-500";
+                        let color = "bg-gray-200";
+                        if (isGoodAnswer) {
+                            if (isSelectedAnswer) {
+                                color = "bg-green-500";
+                            } else {
+                                color = "bg-green-200";
+                            }
                         } else {
-                            color = "bg-green-200";
+                            if (isSelectedAnswer) {
+                                color = "bg-red-200";
+                            } else {
+                                color = "bg-blue-200";
+                            }
                         }
-                    } else {
-                        if (isSelectedAnswer) {
-                            color = "bg-red-200";
-                        } else {
-                            color = "bg-blue-200";
-                        }
+
+                        return (
+                            <div key={answer.value} className={`${color}`}>
+                                {answer.value}
+                            </div>
+                        )
+                    })
                     }
+                </div>
 
-                    return (
-                        <div key={answer.value} className={`${color}`}>
-                            {answer.value}
+                <div>
+                    {gamePlayers.map((gamePlayer) =>
+                        <div key={gamePlayer.id} className="">
+                            <div>
+                                {gamePlayer.username}
+                            </div>
+                            <div>
+                                Score: {gamePlayer.score}
+                            </div>
                         </div>
-                    )
-                })
-                }
+                    )}
+
+                </div>
 
                 <Button onClick={handleClickNextQuestion}>
                     Next question

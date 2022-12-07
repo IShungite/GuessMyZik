@@ -122,8 +122,17 @@ export class GamesService {
     };
   }
 
+  calcAnswerScore(timeElapsed: number, duration: number) {
+    const maxPoint = 500;
+    const percent = timeElapsed / duration;
+
+    return Math.floor(percent * maxPoint);
+  }
+
   async sendAnswer(gameId: string, socketId: string, answer: string) {
-    this.logger.log(`The player ${socketId} is sending answer ${answer} for game ${gameId}`);
+    const timer = this.timers.get(gameId);
+
+    this.logger.log(`The player ${socketId} is sending answer ${answer} for game ${gameId} in ${timer.timeElapsed}s`);
 
     const game = await this.prismaService.game.findFirstOrThrow(
       { where: { id: gameId, state: GameState.PLAYING } },
@@ -147,12 +156,25 @@ export class GamesService {
       throw new Error('Answer already sent');
     }
 
-    await this.prismaService.gamePlayerAnswer.create({
-      data: {
-        gamePlayerId: gamePlayer.id,
-        gameAnswerId: gameAnswer.id,
-      },
+    const goodAnswer = await this.prismaService.gameAnswer.findFirstOrThrow({
+      where: { questionId: gameQuestion.id, isRight: true },
     });
+
+    const isGoodAnswer = gameAnswer.id === goodAnswer.id;
+
+    await Promise.all([
+      isGoodAnswer && this.prismaService.gamePlayer.update({
+        where: { id: gamePlayer.id },
+        data: { score: gamePlayer.score += this.calcAnswerScore(timer.timeElapsed, timer.duration) },
+      }),
+
+      this.prismaService.gamePlayerAnswer.create({
+        data: {
+          gamePlayerId: gamePlayer.id,
+          gameAnswerId: gameAnswer.id,
+        },
+      }),
+    ]);
 
     this.logger.log(`The player ${socketId} has sent answer ${answer} for game ${gameId}`);
   }
@@ -236,8 +258,12 @@ export class GamesService {
 
   async roundEnd(gameId: string, joinCode: string) {
     const goodAnswer = await this.getLastGoodAnswer(gameId);
+    const scoresWithGamePlayerId = await this.prismaService.gamePlayer.findMany({
+      where: { gameId },
+      select: { score: true, id: true },
+    });
 
-    this.socketService.socket.to(joinCode).emit('on_show_round_result', { goodAnswer });
+    this.socketService.socket.to(joinCode).emit('on_show_round_result', { goodAnswer, scoresWithGamePlayerId });
   }
 
   async isRoundEnded(gameId: string) {

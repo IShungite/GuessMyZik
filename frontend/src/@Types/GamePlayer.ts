@@ -14,4 +14,5 @@ export default interface GamePlayer {
 export interface GamePlayerFormat {
     id: string,
     username: string
+    score: number
 }
