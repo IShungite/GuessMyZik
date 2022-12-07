@@ -8,9 +8,10 @@ import { SocketModule } from './socket.module';
 import { AppGateway } from './app.gateway';
 import { RoomsModule } from './rooms/rooms.module';
 import { DeezerService } from './deezer/deezer.service';
+import { StatsModule } from './stats/stats.module';
 
 @Module({
-  imports: [UsersModule, GamesModule, AuthModule, SocketModule, RoomsModule],
+  imports: [UsersModule, GamesModule, AuthModule, SocketModule, RoomsModule, StatsModule],
   controllers: [AppController],
   providers: [AppService, AppGateway, DeezerService],
 })

@@ -7,6 +7,7 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { ProfileCredentials, RegisterCredentials } from "../../@Types/Auth/User";
 import { IProfileInputs } from "../../@Types/Form/IFormInputs";
 import { authState } from "../../atoms/authAtom";
+import { backendApiUrl } from "../../constants";
 import useFetch from "../../hooks/useFetch";
 import { profileSchema } from "../../schemas/AuthSchema";
 import RegisterButton from "../RegisterButton/RegisterButton";
@@ -23,7 +24,7 @@ export default function ProfileForm() {
 
         const userId = getAuth?.id;
         if (userId) {
-            await fetchData(`http://localhost:3000/users/${userId}`, {
+            await fetchData(`${backendApiUrl}/users/${userId}`, {
                 method: 'PATCH', body: JSON.stringify({
                     updateUserDto: {
                         username: formData.username ? formData.username : undefined,

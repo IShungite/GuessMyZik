@@ -6,6 +6,7 @@ import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import Profile from "./pages/Profile/Profile";
 import Register from "./pages/Register/Register";
+import Stats from "./pages/Stats/Stats";
 
 export default createBrowserRouter(
   createRoutesFromElements(
@@ -13,6 +14,7 @@ export default createBrowserRouter(
       <Route path="/" element={<ProtectedRoute />}>
         <Route path="/" element={<Home />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="stats" element={<Stats />} />
       </Route>
 
       <Route path="login" element={<Login />} />
