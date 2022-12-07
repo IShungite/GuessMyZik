@@ -14,14 +14,18 @@ export class StatsController {
     return this.statsService.findAllPlayed(req.user.id);
   }
 
+  // @UseGuards(JwtAuthGuard)
+  // findGameDetails(@Request() req, @Param() gameId: string) {
+  //   return this.statsService.findGameDetails(req.user.id, gameId);
+  // }
+  @Get('details/:gameId')
+  findGameDetails(@Param('gameId') gameId: string) {
+    return this.statsService.findGameDetails(gameId);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('won')
   findAllWon() {
     return this.statsService.findAllWon();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.statsService.findOne(+id);
   }
 }

@@ -9,11 +9,14 @@ export class StatsService {
     return this.prisma.game.findMany({ where: { gamePlayers: { some: { userId: id } } } });
   }
 
-  findAllWon() {
-    return 'This action returns all won games';
+  findGameDetails(gameId: string) { // userId: string,
+    // return this.prisma.game.findOne({ where: { gamePlayers: { some: { userId: id } } } });
+    return this.prisma.game.findUnique({
+      where: { id: gameId }, select: { gameQuestions: true },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} stat`;
+  findAllWon() {
+    return 'This action returns all won games';
   }
 }
