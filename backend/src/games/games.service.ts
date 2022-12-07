@@ -124,9 +124,9 @@ export class GamesService {
 
   calcAnswerScore(timeElapsed: number, duration: number) {
     const maxPoint = 500;
-    const percent = timeElapsed / duration;
+    const percent = (timeElapsed * 100) / duration;
 
-    return Math.floor(percent * maxPoint);
+    return Math.floor((percent * maxPoint) / 100);
   }
 
   async sendAnswer(gameId: string, socketId: string, answer: string) {
