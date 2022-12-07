@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
 import Game from '../../@Types/Game';
 import { authState } from '../../atoms/authAtom';
+import GameDetails from '../../components/GameDetails/GameDetails';
 import { backendApiUrl } from '../../constants';
 import useFetch from '../../hooks/useFetch';
 
@@ -47,7 +48,7 @@ export default function Stats() {
                             <Table.Cell>{game.playlistId}</Table.Cell>
                             <Table.Cell>Not implemented</Table.Cell>
                             <Table.Cell className="font-medium text-blue-600 hover:underline dark:text-blue-500">
-                                <a href='/stats'>Details</a>
+                                <GameDetails gameId={game.id} />
                             </Table.Cell>
                         </Table.Row>
                     )}
