@@ -14,11 +14,22 @@ export default function Stats() {
     }, [])
 
     const { data, isLoading, error, fetchData } = useFetch<Game[]>();
+    const getAuth = useRecoilValue(authState);
+
 
     if (data) {
+
+        let gamesWon: number = 0;
+
+        data.forEach(game => {
+            if (game.gamePlayers[0].userId === getAuth?.id) {
+                gamesWon += 1;
+            }
+        });
+
         return <div>
             <p>Games played : {data.length}</p>
-            <p>Games won : 0</p>
+            <p>Games won : {gamesWon} ({((gamesWon / data.length) * 100).toFixed(1)} %)</p>
             <Table hoverable={true}>
                 <Table.Head>
                     <Table.HeadCell>
@@ -46,7 +57,7 @@ export default function Stats() {
                             <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">{game.id}</Table.Cell>
                             <Table.Cell>{game.gameMode}</Table.Cell>
                             <Table.Cell>{game.playlistId}</Table.Cell>
-                            <Table.Cell>Not implemented</Table.Cell>
+                            <Table.Cell>{game.gamePlayers.at(0)?.userId === getAuth?.id ? 'WIN' : 'LOSE'}</Table.Cell>
                             <Table.Cell className="font-medium text-blue-600 hover:underline dark:text-blue-500">
                                 <GameDetails gameId={game.id} />
                             </Table.Cell>

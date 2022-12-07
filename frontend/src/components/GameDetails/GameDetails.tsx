@@ -42,9 +42,9 @@ export default function GameDetails({ gameId }: Props) {
             const gameAnswer = data.gameAnswers[index];
             const playerAnswer = data.playerAnswers[index];
             if (gameAnswer.isRight === playerAnswer.isRight) {
-                answers.push(`${index} => You picked ${playerAnswer.value}, this was correct.`);
+                answers.push(`${index + 1} => You picked ${playerAnswer.value}, this was correct.`);
             } else {
-                answers.push(`${index} => You picked ${playerAnswer.value}, this was incorrect. The correct answer was : ${gameAnswer.value}.`);
+                answers.push(`${index + 1} => You picked ${playerAnswer.value}, this was incorrect. The correct answer was : ${gameAnswer.value}.`);
             }
         }
 
@@ -66,10 +66,6 @@ export default function GameDetails({ gameId }: Props) {
                                     {answer}
                                 </ListGroupItem>
                             )
-
-                            // data.playerAnswers.map((answer) =>
-                            //     <p>Picked answer : {answer.value}</p>
-                            // )
                         }
                     </ListGroup>
                 </Modal.Body>
@@ -81,7 +77,9 @@ export default function GameDetails({ gameId }: Props) {
             </Modal>
         </React.Fragment>;
     } else if (isLoading) {
-        <p>Loading...</p>
+        return <p>Loading...</p>
+    } else {
+        return <p>{error?.message}</p>
     }
 
 

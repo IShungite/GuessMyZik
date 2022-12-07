@@ -1,4 +1,4 @@
-import { GamePlayer } from "./GamePlayer";
+import GamePlayer from "./GamePlayer";
 import GameQuestion from "./GameQuestion";
 
 export default interface Game {

@@ -14,6 +14,12 @@ export class StatsService {
         },
         state: 'FINISHED',
       },
+      include: {
+        gamePlayers: {
+          orderBy: { score: 'desc' },
+          take: 1,
+        },
+      },
     });
   }
 
