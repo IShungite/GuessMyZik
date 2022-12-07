@@ -4,4 +4,6 @@ export default interface GameAnswer {
     questionId: string;
 
     value: string;
+
+    isRight: boolean;
 }

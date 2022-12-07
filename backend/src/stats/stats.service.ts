@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { GameAnswer } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
@@ -16,24 +17,55 @@ export class StatsService {
     });
   }
 
-  findGameDetails(gameId: string) { // userId: string,
-    // return this.prisma.game.findOne({ where: { gamePlayers: { some: { userId: id } } } });
-    return this.prisma.game.findUnique({
+  async findGameDetails(gameId: string, playerId: string) { // userId: string,
+    const gameAnswers: GameAnswer[] = [];
+    const playerAnswers: GameAnswer[] = [];
+
+    const game = await this.prisma.game.findUnique({
       where: { id: gameId },
-      select: {
+      include: {
         gameQuestions:
         {
-          select:
+          include:
           {
             answers:
             {
-              where:
-                { isRight: true },
+              where: { isRight: true },
             },
           },
         },
       },
     });
+
+    game.gameQuestions.forEach((question) => {
+      question.answers.forEach((answer) => {
+        gameAnswers.push(answer);
+      });
+    });
+
+    const gamePlayerAnswers = await this.prisma.gamePlayer.findFirst({
+      where: {
+        userId: playerId,
+        gameId,
+      },
+      select: {
+        gamePlayerAnswers: {
+          select: {
+            gameAnswer: {
+              select: {
+                id: true, value: true, isRight: true, questionId: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    gamePlayerAnswers.gamePlayerAnswers.forEach((item) => {
+      playerAnswers.push(item.gameAnswer);
+    });
+
+    return { gameAnswers, playerAnswers };
   }
 
   findAllWon() {

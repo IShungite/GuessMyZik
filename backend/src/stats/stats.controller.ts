@@ -18,9 +18,9 @@ export class StatsController {
   // findGameDetails(@Request() req, @Param() gameId: string) {
   //   return this.statsService.findGameDetails(req.user.id, gameId);
   // }
-  @Get('details/:gameId')
-  findGameDetails(@Param('gameId') gameId: string) {
-    return this.statsService.findGameDetails(gameId);
+  @Get('details/:gameId/:playerId')
+  findGameDetails(@Param('gameId') gameId: string, @Param('playerId') playerId: string) {
+    return this.statsService.findGameDetails(gameId, playerId);
   }
 
   @UseGuards(JwtAuthGuard)
