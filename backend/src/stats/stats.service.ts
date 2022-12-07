@@ -6,7 +6,14 @@ export class StatsService {
   constructor(private readonly prisma: PrismaService) { }
 
   findAllPlayed(id: string) {
-    return this.prisma.game.findMany({ where: { gamePlayers: { every: { userId: id } } } });
+    return this.prisma.game.findMany({
+      where: {
+        gamePlayers: {
+          some: { userId: id },
+        },
+        state: 'FINISHED',
+      },
+    });
   }
 
   findGameDetails(gameId: string) { // userId: string,
