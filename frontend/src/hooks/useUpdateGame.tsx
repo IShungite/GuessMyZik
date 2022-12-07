@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import { useSetRecoilState } from 'recoil';
 import { UpdateGameDto } from '../@Types/Game'
 import { GamePlayerFormat } from '../@Types/GamePlayer';
-import { gameJoinCodeAtom, gameMaxPlayersAtom, gameMaxQuestionsAtom, gameMaxSuggestionsAtom, gameModeAtom, gamePlayersAtom, gamePlaylistIdAtom, gameStateAtom, gameTotalPlaylistTrackAtom } from '../atoms/gameAtom';
+import { gameCurrentQuestionAtom, gameJoinCodeAtom, gameMaxPlayersAtom, gameMaxQuestionsAtom, gameMaxSuggestionsAtom, gameModeAtom, gamePlayersAtom, gamePlaylistIdAtom, gameStateAtom, gameTotalPlaylistTrackAtom } from '../atoms/gameAtom';
 
 export default function useUpdateGame() {
     const setGameState = useSetRecoilState(gameStateAtom);
@@ -14,6 +14,7 @@ export default function useUpdateGame() {
     const setGameMaxPlayers = useSetRecoilState(gameMaxPlayersAtom);
     const setGamePlayers = useSetRecoilState(gamePlayersAtom);
     const setGameTotalPlaylistTracks = useSetRecoilState(gameTotalPlaylistTrackAtom)
+    const setGameCurrentQuestionNumber = useSetRecoilState(gameCurrentQuestionAtom)
 
     const updateGame = useCallback((updateGameDto: UpdateGameDto) => {
         if (updateGameDto.state) {
@@ -80,5 +81,9 @@ export default function useUpdateGame() {
         }))
     }
 
-    return { updateGame, removeGamePlayer, addGamePlayer, updateGamePlayers }
+    const increaseCurrentQuestionNumber = () => {
+        setGameCurrentQuestionNumber((prevValue) => prevValue += 1)
+    }
+
+    return { updateGame, removeGamePlayer, addGamePlayer, updateGamePlayers, increaseCurrentQuestionNumber }
 }

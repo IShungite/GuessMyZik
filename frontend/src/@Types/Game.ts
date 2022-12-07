@@ -9,6 +9,7 @@ export default interface Game {
     joinCode: string;
     playlistId: number;
     totalPlaylistTrack: number;
+    currentQuestionNumber: number;
     maxQuestions: number;
     maxSuggestions: number;
     maxPlayers: number;

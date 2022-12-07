@@ -11,7 +11,7 @@ import useUpdateGame from './useUpdateGame';
 
 export default function useInGameLogic() {
     const auth = useRecoilValue(authState);
-    const { updateGame, removeGamePlayer, addGamePlayer, updateGamePlayers } = useUpdateGame();
+    const { updateGame, removeGamePlayer, addGamePlayer, updateGamePlayers, increaseCurrentQuestionNumber } = useUpdateGame();
     const setGameTrackPreview = useSetRecoilState(gameTrackPreviewAtom);
     const setGameAnswers = useSetRecoilState(gameAnswersAtom);
     const resetGoodAnswer = useResetRecoilState(gameGoodAnswerAtom)
@@ -58,6 +58,7 @@ export default function useInGameLogic() {
                 resetSelectedAnswer();
                 setGameAnswers(gameAnswers);
                 setGameTrackPreview(trackPreview);
+                increaseCurrentQuestionNumber();
             });
         }
     }, [])

@@ -34,14 +34,15 @@ model User {
 model Game {
   id String @id @default(uuid())
 
-  state              GameState @default(WAITING)
-  gameMode           GameMode  @default(FIND_THE_ARTIST)
-  joinCode           String
-  playlistId         Float // playlistId is an integer but a BIG number so INT cant be used to save the value. Neither BIGINT (CANT SERIALIZE A BIG INT)
-  totalPlaylistTrack Int?
-  maxQuestions       Int       @default(1)
-  maxSuggestions     Int       @default(4)
-  maxPlayers         Int       @default(4)
+  state                 GameState @default(WAITING)
+  gameMode              GameMode  @default(FIND_THE_ARTIST)
+  joinCode              String
+  playlistId            Float // playlistId is an integer but a BIG number so INT cant be used to save the value. Neither BIGINT (CANT SERIALIZE A BIG INT)
+  totalPlaylistTrack    Int
+  currentQuestionNumber Int       @default(0)
+  maxQuestions          Int       @default(1)
+  maxSuggestions        Int       @default(4)
+  maxPlayers            Int       @default(4)
 
   gamePlayers   GamePlayer[]
   gameQuestions GameQuestion[]
@@ -81,6 +82,8 @@ model GameQuestion {
 
   trackId Float // trackId is an integer but a BIG number so INT cant be used to save the value. Neither BIGINT (CANT SERIALIZE A BIG INT)
   isDone  Boolean @default(false)
+
+  number Int
 
   game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
   gameId String

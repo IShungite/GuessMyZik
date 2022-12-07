@@ -68,10 +68,11 @@ export class GamesService {
 
     const tracks = await this.deezerService.getRandomPlaylistTracks(game.playlistId, game.maxQuestions);
 
-    const createGameQuestionsPromises = tracks.map((track) => this.prismaService.gameQuestion.create({
+    const createGameQuestionsPromises = tracks.map((track, index) => this.prismaService.gameQuestion.create({
       data: {
         trackId: track.id,
         gameId: game.id,
+        number: index,
       },
     }));
 
@@ -90,8 +91,10 @@ export class GamesService {
       { where: { joinCode: gameRoom, state: GameState.PLAYING } },
     );
 
+    const nextGameQuestionNumber = game.currentQuestionNumber + 1;
+
     const gameQuestion = await this.prismaService.gameQuestion.findFirstOrThrow({
-      where: { gameId: game.id, isDone: false },
+      where: { gameId: game.id, number: nextGameQuestionNumber },
     });
 
     const track = await this.deezerService.getTrack(gameQuestion.trackId);
@@ -112,6 +115,12 @@ export class GamesService {
     }));
 
     const gameAnswers = await Promise.all(createGameAnswerPromises);
+
+    await this.prismaService.game.update({
+      where: { id: game.id },
+      data: { currentQuestionNumber: nextGameQuestionNumber }
+      ,
+    });
 
     this.logger.log(`The next song from game ${gameRoom} gameQuestion ${gameQuestion.id} is ${track.title}`);
 
@@ -141,7 +150,7 @@ export class GamesService {
     const gamePlayer = await this.prismaService.gamePlayer.findFirstOrThrow({ where: { gameId: game.id, socketId } });
 
     const gameQuestion = await this.prismaService.gameQuestion.findFirstOrThrow({
-      where: { gameId: game.id, isDone: false },
+      where: { gameId: game.id, number: game.currentQuestionNumber, isDone: false },
     });
 
     const gameAnswer = await this.prismaService.gameAnswer.findFirstOrThrow({
@@ -162,10 +171,14 @@ export class GamesService {
 
     const isGoodAnswer = gameAnswer.id === goodAnswer.id;
 
+    const score = this.calcAnswerScore(timer.timeElapsed, timer.duration);
+
+    this.logger.log(`gamePlayer ${gamePlayer.id} won ${score} points`);
+
     await Promise.all([
       isGoodAnswer && this.prismaService.gamePlayer.update({
         where: { id: gamePlayer.id },
-        data: { score: gamePlayer.score += this.calcAnswerScore(timer.timeElapsed, timer.duration) },
+        data: { score: gamePlayer.score += score },
       }),
 
       this.prismaService.gamePlayerAnswer.create({
@@ -185,7 +198,7 @@ export class GamesService {
     const game = await this.prismaService.game.findUniqueOrThrow({ where: { id: gameId } });
 
     const gameQuestion = await this.prismaService.gameQuestion.findFirstOrThrow({
-      where: { gameId: game.id, isDone: false },
+      where: { gameId: game.id, number: game.currentQuestionNumber, isDone: false },
     });
 
     const gamePlayers = await this.prismaService.gamePlayer.findMany({ where: { gameId: game.id } });
@@ -201,11 +214,11 @@ export class GamesService {
     return allPlayersAnswered;
   }
 
-  async getLastGoodAnswer(gameId: string) {
+  async getGoodAnswer(gameId: string) {
     const game = await this.prismaService.game.findUniqueOrThrow({ where: { id: gameId } });
 
     const gameQuestion = await this.prismaService.gameQuestion.findFirstOrThrow({
-      where: { gameId: game.id, isDone: true },
+      where: { gameId: game.id, number: game.currentQuestionNumber },
     });
 
     const gameAnswer = await this.prismaService.gameAnswer.findFirstOrThrow({
@@ -227,7 +240,7 @@ export class GamesService {
 
     if (!isRoundEnded) return;
 
-    await this.setGameQuestionDone(gameId);
+    await this.setGameQuestionDone(gameId, game.currentQuestionNumber);
 
     this.stopTimer(gameId);
 
@@ -242,7 +255,7 @@ export class GamesService {
   }
 
   async gameEnd(gameId: string, joinCode: string) {
-    const goodAnswer = await this.getLastGoodAnswer(gameId);
+    const goodAnswer = await this.getGoodAnswer(gameId);
 
     const updateGameDto: Prisma.GameUpdateInput = {
       state: GameState.FINISHED,
@@ -257,10 +270,17 @@ export class GamesService {
   }
 
   async roundEnd(gameId: string, joinCode: string) {
-    const goodAnswer = await this.getLastGoodAnswer(gameId);
+    const goodAnswer = await this.getGoodAnswer(gameId);
     const scoresWithGamePlayerId = await this.prismaService.gamePlayer.findMany({
       where: { gameId },
       select: { score: true, id: true },
+    });
+
+    await this.prismaService.game.update({
+      where: { id: gameId },
+      data: {
+        currentQuestionNumber: { increment: 1 },
+      },
     });
 
     this.socketService.socket.to(joinCode).emit('on_show_round_result', { goodAnswer, scoresWithGamePlayerId });
@@ -290,9 +310,9 @@ export class GamesService {
     return gameIsEnded;
   }
 
-  async setGameQuestionDone(gameId: string) {
+  async setGameQuestionDone(gameId: string, questionNumber: number) {
     const gameQuestion = await this.prismaService.gameQuestion.findFirstOrThrow({
-      where: { gameId, isDone: false },
+      where: { gameId, number: questionNumber, isDone: false },
     });
 
     this.logger.log(`Setting game question ${gameQuestion.id} as done for game ${gameId}`);

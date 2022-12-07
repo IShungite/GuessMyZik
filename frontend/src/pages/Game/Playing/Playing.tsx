@@ -3,6 +3,7 @@ import { useAudioPlayer } from "react-use-audio-player"
 import { useRecoilValue } from 'recoil';
 import { gameTrackPreviewAtom } from '../../../atoms/gameAtom';
 import GamePlayingAnswers from '../../../components/GamePlayingAnswers/GamePlayingAnswers';
+import GamePlayingCurentQuestion from '../../../components/GamePlayingCurentQuestion/GamePlayingCurentQuestion';
 import GamePlayingTimer from '../../../components/GamePlayingTimer/GamePlayingTimer';
 
 export default function Playing() {
@@ -19,6 +20,9 @@ export default function Playing() {
             <div>
                 Playing
             </div>
+
+
+            <GamePlayingCurentQuestion />
 
             <GamePlayingTimer />
 
