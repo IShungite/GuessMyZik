@@ -320,6 +320,8 @@ export abstract class GameEngine {
   }
 
   public async gameEnd() {
+    this.logger.log(`Game ${this.roomCode} is ended`);
+
     const gameQuestion = await this.getCurrentGameQuestion();
     const goodAnswer = await this.getGoodAnswer(gameQuestion.id);
 
@@ -333,10 +335,13 @@ export abstract class GameEngine {
   }
 
   public roundEnd() {
+    this.logger.log(`Round ${this.game.currentQuestionNumber} from game ${this.roomCode} ends`);
     this._gamesService.stopTimer(this.game.id);
   }
 
   public async showGameQuestionResults() {
+    this.logger.log(`Show game question results for game ${this.roomCode}`);
+
     const gameQuestion = await this.getCurrentGameQuestion();
     const goodAnswer = await this.getGoodAnswer(gameQuestion.id);
 
