@@ -71,7 +71,7 @@ export default function useUpdateGame() {
         });
     }, [])
 
-    const updateGamePlayers = (gamePlayers: Partial<GamePlayerFormat> & { id: string }[]) => {
+    const updateGamePlayers = useCallback((gamePlayers: Partial<GamePlayerFormat> & { id: string }[]) => {
         setGamePlayers((prevGamePlayers) => prevGamePlayers.map((gamePlayer) => {
             const newGamePlayerData = gamePlayers.find((gp) => gp.id)
 
@@ -83,11 +83,11 @@ export default function useUpdateGame() {
                 ...gamePlayer, ...rest
             }
         }))
-    }
+    }, [])
 
-    const increaseCurrentQuestionNumber = () => {
+    const increaseCurrentQuestionNumber = useCallback(() => {
         setGameCurrentQuestionNumber((prevValue) => prevValue += 1)
-    }
+    }, []);
 
     return { updateGame, removeGamePlayer, addGamePlayer, updateGamePlayers, increaseCurrentQuestionNumber }
 }
