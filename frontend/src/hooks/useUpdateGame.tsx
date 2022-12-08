@@ -53,6 +53,10 @@ export default function useUpdateGame() {
             setGameTotalPlaylistTracks(updateGameDto.totalPlaylistTrack);
         }
 
+        if (updateGameDto.currentQuestionNumber) {
+            setGameCurrentQuestionNumber(updateGameDto.currentQuestionNumber);
+        }
+
     }, [])
 
     const removeGamePlayer = useCallback((gamePlayerId: string) => {

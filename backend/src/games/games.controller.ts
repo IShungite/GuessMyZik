@@ -38,7 +38,7 @@ export class GamesController {
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateGameDto: Prisma.GameUpdateInput) {
-    const gameUpdated = await this.gamesService.update(id, updateGameDto);
+    const gameUpdated = await this.gamesService.update({ where: { id }, data: updateGameDto });
 
     this.socketService.socket.to(gameUpdated.joinCode).emit('game-update', gameUpdated);
 

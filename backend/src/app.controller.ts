@@ -6,16 +6,13 @@ import { IUserRequest } from './auth/auth.models';
 import { AuthService } from './auth/auth.service';
 import { LocalAuthGuard } from './auth/local-auth.guard';
 import { GetUser } from './decorator/get-user.decorator';
-import { DeezerService } from './deezer/deezer.service';
-import { SocketService } from './socket.service';
+import deezerService from './deezer/deezer.service';
 
 @Controller()
 export class AppController {
   constructor(
     private readonly appService: AppService,
     private authService: AuthService,
-    private socketService: SocketService,
-    private deezerService: DeezerService,
   ) {
   }
 
@@ -28,7 +25,7 @@ export class AppController {
   // @UseGuards(JwtAuthGuard)
   @Get()
   async getHello(@GetUser() user: IUserRequest) {
-    const playlist = await this.deezerService.getRandomPlaylist();
+    const playlist = await deezerService.getRandomPlaylist();
 
     return this.appService.getHello();
   }
