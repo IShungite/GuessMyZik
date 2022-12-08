@@ -4,11 +4,11 @@ import { GamePlayerFormat } from "../@Types/GamePlayer";
 
 class GameService {
 
-    public async joinGameRoom(socket: Socket, joinCode: string, userId: string): Promise<Game> {
+    public async joinGameRoom(socket: Socket, joinCode: string, userId: string): Promise<UpdateGameDto> {
         return new Promise((resolve, reject) => {
             socket.emit("join_room", { joinCode, userId });
 
-            socket.on("join_success", ({ game }: { game: Game }) => resolve(game));
+            socket.on("join_success", ({ game }: { game: UpdateGameDto }) => resolve(game));
 
             socket.on("join_error", (error) => reject(error));
         });
@@ -26,8 +26,8 @@ class GameService {
         socket.emit("start_game");
     }
 
-    public onStartGame(socket: Socket, listener: (game: Game) => void) {
-        socket.on("on_game_start", ({ game }: { game: Game }) => {
+    public onStartGame(socket: Socket, listener: (game: UpdateGameDto) => void) {
+        socket.on("on_game_start", ({ game }: { game: UpdateGameDto }) => {
             listener(game)
         }
         );
