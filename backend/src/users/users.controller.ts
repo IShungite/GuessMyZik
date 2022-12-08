@@ -39,7 +39,7 @@ export class UsersController {
   ) {
     if (updateUserDto.password) {
       const checkPassword = await this.usersService
-        .checkPassword(oldPassword, updateUserDto.password as string, req.user.id);
+        .checkPassword(oldPassword, req.user.id);
       if (!checkPassword) {
         throw new BadRequestException('Password mismatch');
       }

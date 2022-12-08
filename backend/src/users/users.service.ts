@@ -61,7 +61,7 @@ export class UsersService {
     return hashedPassword;
   }
 
-  async checkPassword(oldPassword: string, newPassword: string, id: string) {
+  async checkPassword(oldPassword: string, id: string) {
     const dbPassword = await this.prisma.user.findUnique({
       where: { id }, select: { password: true },
     });
