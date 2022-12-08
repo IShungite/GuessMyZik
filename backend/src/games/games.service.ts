@@ -2,19 +2,22 @@ import { Injectable, Logger } from '@nestjs/common';
 import {
   Game, GameState, Prisma,
 } from '@prisma/client';
-import Track from '@Types/Deezer/Track';
-import { DeezerService } from 'src/deezer/deezer.service';
+import { GameAnswersService } from 'src/game-answers/game-answers.service';
+import { GamePlayersService } from 'src/game-players/game-players.service';
+import { GameQuestionsService } from 'src/game-questions/game-questions.service';
+import { GameEngine } from 'src/gameEngine/GameEngine';
 import { PrismaService } from 'src/prisma.service';
 import { SocketService } from 'src/socket.service';
 import Timer from 'src/Timer/Timer';
-import shuffle from 'src/utils/shuffle';
 
 @Injectable()
 export class GamesService {
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly deezerService: DeezerService,
     private readonly socketService: SocketService,
+    private readonly gamePlayersService: GamePlayersService,
+    private readonly gameQuestionsService: GameQuestionsService,
+    private readonly gameAnswersService: GameAnswersService,
   ) { }
 
   private logger: Logger = new Logger('GamesService');
@@ -22,9 +25,7 @@ export class GamesService {
   private timers: Map<string, Timer> = new Map();
 
   async create(): Promise<Game> {
-    const joinCode = this.createJoinCode();
-    const playlist = await this.deezerService.getRandomPlaylist();
-    const maxQuestions = Math.ceil(playlist.nb_tracks / 2);
+    const { joinCode, playlist, maxQuestions } = await GameEngine.GetDataToCreateGame();
 
     const game = await this.prismaService.game.create({
       data: {
@@ -35,8 +36,17 @@ export class GamesService {
     return game;
   }
 
-  createJoinCode() {
-    return Math.random().toString(36).substring(2, 8).toUpperCase();
+  async getGameEngine(joinCode: string) {
+    const game = await this.findByJoinCode(joinCode);
+
+    return new GameEngine({
+      game,
+      gamesService: this,
+      gamePlayersService: this.gamePlayersService,
+      gameQuestionsService: this.gameQuestionsService,
+      socketService: this.socketService,
+      gameAnswersService: this.gameAnswersService,
+    });
   }
 
   async quitGame(joinCode: string, userId: string) {
@@ -59,76 +69,12 @@ export class GamesService {
     );
   }
 
-  async startGame(gameRoom: string) {
-    const game = await this.prismaService.game.findFirst({ where: { joinCode: gameRoom } });
-
-    if (!game) {
-      throw new Error("Game doesn't exist");
-    }
-
-    const tracks = await this.deezerService.getRandomPlaylistTracks(game.playlistId, game.maxQuestions);
-
-    const createGameQuestionsPromises = tracks.map((track, index) => this.prismaService.gameQuestion.create({
-      data: {
-        trackId: track.id,
-        gameId: game.id,
-        number: index,
-      },
-    }));
-
-    await Promise.all(createGameQuestionsPromises);
-
-    const gameUpdated = await this.prismaService.game.update({
-      where: { id: game.id },
-      data: { state: GameState.PLAYING },
-    });
-
-    return gameUpdated;
+  async findByJoinCode(joinCode: string) {
+    return this.prismaService.game.findFirstOrThrow({ where: { joinCode } });
   }
 
-  async nextSong(gameRoom: string): Promise<{ gameAnswers: { value: string }[], track: Track, game: Game }> {
-    const game = await this.prismaService.game.findFirstOrThrow(
-      { where: { joinCode: gameRoom, state: GameState.PLAYING } },
-    );
-
-    const nextGameQuestionNumber = game.currentQuestionNumber + 1;
-
-    const gameQuestion = await this.prismaService.gameQuestion.findFirstOrThrow({
-      where: { gameId: game.id, number: nextGameQuestionNumber },
-    });
-
-    const track = await this.deezerService.getTrack(gameQuestion.trackId);
-
-    const similarArtists = await this.deezerService.getRandomSimilarArtists(track.artist.id, game.maxSuggestions - 1);
-
-    const suggestions = [track.artist.name, ...similarArtists.map((artist) => artist.name)];
-
-    const suggestionsShuffled = shuffle(suggestions);
-
-    const createGameAnswerPromises = suggestionsShuffled.map((suggestion) => this.prismaService.gameAnswer.create({
-      data: {
-        questionId: gameQuestion.id,
-        value: suggestion,
-        isRight: suggestion === track.artist.name,
-      },
-      select: { value: true },
-    }));
-
-    const gameAnswers = await Promise.all(createGameAnswerPromises);
-
-    await this.prismaService.game.update({
-      where: { id: game.id },
-      data: { currentQuestionNumber: nextGameQuestionNumber }
-      ,
-    });
-
-    this.logger.log(`The next song from game ${gameRoom} gameQuestion ${gameQuestion.id} is ${track.title}`);
-
-    return {
-      gameAnswers,
-      track,
-      game,
-    };
+  async update(updateArgs: Prisma.GameUpdateArgs) {
+    this.prismaService.game.update(updateArgs);
   }
 
   calcAnswerScore(timeElapsed: number, duration: number) {
@@ -367,13 +313,6 @@ export class GamesService {
 
   async findFirst(where: Prisma.GameWhereInput) {
     return this.prismaService.game.findFirstOrThrow({ where });
-  }
-
-  async update(id: string, updateGameDto: Prisma.GameUpdateInput) {
-    return this.prismaService.game.update({
-      where: { id },
-      data: updateGameDto,
-    });
   }
 
   async remove(id: string) {

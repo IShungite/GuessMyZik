@@ -6,8 +6,6 @@ import {
 import { GameState, Prisma } from '@prisma/client';
 import { Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma.service';
-import { SocketService } from 'src/socket.service';
-import { UsersService } from 'src/users/users.service';
 import getSocketGameRoom from 'src/utils/getSocketGameRoom';
 import { GamesService } from './games.service';
 
@@ -19,8 +17,6 @@ import { GamesService } from './games.service';
 export class GamesGateway {
   constructor(
     private readonly gamesService: GamesService,
-    private readonly socketService: SocketService,
-    private readonly usersService: UsersService,
     private readonly prismaService: PrismaService,
   ) { }
 
@@ -31,42 +27,36 @@ export class GamesGateway {
     @MessageBody() { updateGameDto }: { updateGameDto: Prisma.GameUpdateInput },
     @ConnectedSocket() client: Socket,
   ) {
-    this.logger.log(`Client ${client.id} updating the game`, JSON.stringify(updateGameDto));
+    this.logger.log(`${client.id} - event update_game`);
 
     const gameRoom = getSocketGameRoom(client);
+    const gameEngine = await this.gamesService.getGameEngine(gameRoom);
 
-    const game = await this.prismaService.game.findFirstOrThrow({ where: { joinCode: gameRoom, state: 'WAITING' } });
-
-    await this.gamesService.update(game.id, updateGameDto);
-
-    this.logger.log(`Client ${client.id} successfully updated the game`);
-
-    client.to(gameRoom).emit('on_game_update', { updateGameDto });
+    await gameEngine.updateGameParameters(updateGameDto, client);
   }
 
   @SubscribeMessage('start_game')
   async startGame(
     @ConnectedSocket() client: Socket,
   ) {
+    this.logger.log(`${client.id} - event start_game`);
+
     const gameRoom = getSocketGameRoom(client);
+    const gameEngine = await this.gamesService.getGameEngine(gameRoom);
 
-    const game = await this.gamesService.startGame(gameRoom);
-
-    this.socketService.socket.to(gameRoom).emit('on_game_start', { game });
-
-    await this.nextSong(client);
+    await gameEngine.gameStart();
   }
 
   @SubscribeMessage('next_song')
   async nextSong(
     @ConnectedSocket() client: Socket,
   ) {
+    this.logger.log(`${client.id} - event next_song`);
+
     const gameRoom = getSocketGameRoom(client);
+    const gameEngine = await this.gamesService.getGameEngine(gameRoom);
 
-    const { track, gameAnswers, game } = await this.gamesService.nextSong(gameRoom);
-
-    this.socketService.socket.to(gameRoom).emit('on_next_song', { trackPreview: track.preview, gameAnswers });
-    this.gamesService.startTimer(gameRoom, game.id);
+    await gameEngine.nextSong();
   }
 
   @SubscribeMessage('send_answer')
@@ -74,6 +64,8 @@ export class GamesGateway {
     @MessageBody() { answer }: { answer: string },
     @ConnectedSocket() client: Socket,
   ) {
+    this.logger.log(`${client.id} - event send_answer`);
+
     const gameRoom = getSocketGameRoom(client);
 
     const game = await this.prismaService.game.findFirstOrThrow(

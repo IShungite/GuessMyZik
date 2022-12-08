@@ -1,12 +1,10 @@
-import { Injectable } from '@nestjs/common';
 import Artist from '@Types/Deezer/Artist';
 import Playlist from '@Types/Deezer/Playlist';
 import Track from '@Types/Deezer/Track';
 import shuffle from 'src/utils/shuffle';
 import tryFetch from 'src/utils/tryFetch';
 
-@Injectable()
-export class DeezerService {
+class DeezerService {
   async getPlaylistTracks(playlistId: number): Promise<Track[]> {
     const { data: tracks } = await tryFetch<{ data: Track[] }>(`https://api.deezer.com/playlist/${playlistId}/tracks`);
 
@@ -68,3 +66,5 @@ export class DeezerService {
     return randomPlaylist;
   }
 }
+
+export default new DeezerService();
