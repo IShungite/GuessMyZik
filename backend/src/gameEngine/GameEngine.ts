@@ -180,14 +180,7 @@ export abstract class GameEngine {
 
     if (!isRoundEnded) return;
 
-    this.roundEnd();
-
-    const isGameEnded = await this.isGameEnded();
-    if (isGameEnded) {
-      await this.gameEnd();
-    } else {
-      await this.showGameQuestionResults();
-    }
+    await this._roundEnd();
   }
 
   public async isRoundEnded() {
@@ -303,7 +296,13 @@ export abstract class GameEngine {
   private async _onTimerEnds() {
     this.logger.log(`Timer of the game ${this.roomCode} has ended!`);
 
-    this.roundEnd();
+    await this._roundEnd();
+  }
+
+  private async _roundEnd() {
+    this.logger.log(`Round ${this.game.currentQuestionNumber} from game ${this.roomCode} ends`);
+
+    this._gamesService.stopTimer(this.game.id);
 
     const isGameEnded = await this.isGameEnded();
     if (isGameEnded) {
@@ -332,11 +331,6 @@ export abstract class GameEngine {
     await this.updateGame(updateGameDto);
 
     this._socketService.socket.to(this.roomCode).emit('on_game_end', { updateGameDto, goodAnswer });
-  }
-
-  public roundEnd() {
-    this.logger.log(`Round ${this.game.currentQuestionNumber} from game ${this.roomCode} ends`);
-    this._gamesService.stopTimer(this.game.id);
   }
 
   public async showGameQuestionResults() {
