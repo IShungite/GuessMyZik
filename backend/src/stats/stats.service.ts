@@ -73,8 +73,4 @@ export class StatsService {
 
     return { gameAnswers, playerAnswers };
   }
-
-  findAllWon() {
-    return 'This action returns all won games';
-  }
 }

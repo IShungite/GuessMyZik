@@ -137,13 +137,4 @@ export class GamesService {
   async findFirst(where: Prisma.GameWhereInput) {
     return this.prismaService.game.findFirstOrThrow({ where });
   }
-
-  async remove(id: string) {
-    return this.prismaService.game.delete({ where: { id } });
-  }
-
-  async removeAll() {
-    const { count } = await this.prismaService.game.deleteMany();
-    return count;
-  }
 }

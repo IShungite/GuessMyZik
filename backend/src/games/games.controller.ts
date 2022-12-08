@@ -1,5 +1,5 @@
 import {
-  Controller, Get, Post, Body, Patch, Param, Delete,
+  Controller, Get, Post, Body, Patch, Param,
 } from '@nestjs/common';
 import {
   Game, Prisma,
@@ -14,11 +14,6 @@ export class GamesController {
   @Post()
   create(): Promise<Game> {
     return this.gamesService.create();
-  }
-
-  @Get('/removeall') // TODO REMOVE THIS ENDPOINT
-  removeAll() {
-    return this.gamesService.removeAll();
   }
 
   @Get('join/:joinCode')
@@ -43,14 +38,5 @@ export class GamesController {
     this.socketService.socket.to(gameUpdated.joinCode).emit('game-update', gameUpdated);
 
     return gameUpdated;
-  }
-
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    const gameDeleted = await this.gamesService.remove(id);
-
-    this.socketService.socket.to(gameDeleted.joinCode).emit('game-delete');
-
-    return gameDeleted;
   }
 }
