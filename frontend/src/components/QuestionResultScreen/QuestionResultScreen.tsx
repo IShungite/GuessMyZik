@@ -1,7 +1,7 @@
 import { Button } from 'flowbite-react';
 import React from 'react'
 import { useRecoilValue } from 'recoil';
-import { gameAnswersAtom, gameGoodAnswerAtom, gamePlayersAtom, gameSelectedAnswerAtom } from '../../atoms/gameAtom';
+import { gameAnswersAtom, gameGoodAnswerAtom, gameSelectedAnswerAtom } from '../../atoms/gameAtom';
 import gameService from '../../services/gameService';
 import socketService from '../../services/socketService';
 import PlayersScore from '../PlayersScore/PlayersScore';
@@ -10,8 +10,6 @@ export default function QuestionResultScreen() {
     const goodAnswer = useRecoilValue(gameGoodAnswerAtom);
     const answers = useRecoilValue(gameAnswersAtom);
     const selectedAnswer = useRecoilValue(gameSelectedAnswerAtom);
-    const gamePlayers = useRecoilValue(gamePlayersAtom);
-
 
     const handleClickNextQuestion = () => {
         if (socketService.socket) {
