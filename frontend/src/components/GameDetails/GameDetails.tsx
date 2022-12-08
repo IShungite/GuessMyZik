@@ -41,6 +41,10 @@ export default function GameDetails({ gameId }: Props) {
         for (let index = 0; index < data.gameAnswers.length; index += 1) {
             const gameAnswer = data.gameAnswers[index];
             const playerAnswer = data.playerAnswers[index];
+            if (!playerAnswer) {
+                answers.push(`${index + 1} => You didn't pick anything. The correct answer was : ${gameAnswer.value}.`);
+                continue;
+            }
             if (gameAnswer.isRight === playerAnswer.isRight) {
                 answers.push(`${index + 1} => You picked ${playerAnswer.value}, this was correct.`);
             } else {
