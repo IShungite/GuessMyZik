@@ -17,43 +17,43 @@ export default function useUpdateGame() {
     const setGameCurrentQuestionNumber = useSetRecoilState(gameCurrentQuestionAtom)
 
     const updateGame = useCallback((updateGameDto: UpdateGameDto) => {
-        if (updateGameDto.state) {
+        if (updateGameDto.state !== undefined) {
             setGameState(updateGameDto.state);
         }
 
-        if (updateGameDto.gameMode) {
+        if (updateGameDto.gameMode !== undefined) {
             setGameModeAtom(updateGameDto.gameMode);
         }
 
-        if (updateGameDto.joinCode) {
+        if (updateGameDto.joinCode !== undefined) {
             setGameJoinCode(updateGameDto.joinCode);
         }
 
-        if (updateGameDto.playlistId) {
+        if (updateGameDto.playlistId !== undefined) {
             setGamePlaylistId(updateGameDto.playlistId);
         }
 
-        if (updateGameDto.maxQuestions) {
+        if (updateGameDto.maxQuestions !== undefined) {
             setGameMaxQuestions(updateGameDto.maxQuestions);
         }
 
-        if (updateGameDto.maxSuggestions) {
+        if (updateGameDto.maxSuggestions !== undefined) {
             setGameMaxSuggestions(updateGameDto.maxSuggestions);
         }
 
-        if (updateGameDto.maxPlayers) {
+        if (updateGameDto.maxPlayers !== undefined) {
             setGameMaxPlayers(updateGameDto.maxPlayers);
         }
 
-        if (updateGameDto.gamePlayers) {
+        if (updateGameDto.gamePlayers !== undefined) {
             setGamePlayers(updateGameDto.gamePlayers);
         }
 
-        if (updateGameDto.totalPlaylistTrack) {
+        if (updateGameDto.totalPlaylistTrack !== undefined) {
             setGameTotalPlaylistTracks(updateGameDto.totalPlaylistTrack);
         }
 
-        if (updateGameDto.currentQuestionNumber) {
+        if (updateGameDto.currentQuestionNumber !== undefined) {
             setGameCurrentQuestionNumber(updateGameDto.currentQuestionNumber);
         }
 
