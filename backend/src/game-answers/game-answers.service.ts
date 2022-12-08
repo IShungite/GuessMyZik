@@ -13,4 +13,12 @@ export class GameAnswersService {
       data: createGameAnswerDto,
     });
   }
+
+  async findOneOrThrow(findGameAnswer: Prisma.GameAnswerFindFirstOrThrowArgs) {
+    return this.prismaService.gameAnswer.findFirstOrThrow(findGameAnswer);
+  }
+
+  async findOne(findGameAnswer: Prisma.GameAnswerFindFirstArgs) {
+    return this.prismaService.gameAnswer.findFirst(findGameAnswer);
+  }
 }

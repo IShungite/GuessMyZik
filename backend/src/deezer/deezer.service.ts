@@ -8,7 +8,9 @@ class DeezerService {
   async getPlaylistTracks(playlistId: number): Promise<Track[]> {
     const { data: tracks } = await tryFetch<{ data: Track[] }>(`https://api.deezer.com/playlist/${playlistId}/tracks`);
 
-    return tracks;
+    const filteredTracks = tracks.filter((track) => track.preview !== '');
+
+    return filteredTracks;
   }
 
   async getRandomPlaylistTracks(playlistId: number, maxTracks: number): Promise<Track[]> {

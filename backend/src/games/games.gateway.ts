@@ -3,9 +3,8 @@ import { Logger } from '@nestjs/common';
 import {
   ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway,
 } from '@nestjs/websockets';
-import { GameState, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { Socket } from 'socket.io';
-import { PrismaService } from 'src/prisma.service';
 import getSocketGameRoom from 'src/utils/getSocketGameRoom';
 import { GamesService } from './games.service';
 
@@ -17,7 +16,6 @@ import { GamesService } from './games.service';
 export class GamesGateway {
   constructor(
     private readonly gamesService: GamesService,
-    private readonly prismaService: PrismaService,
   ) { }
 
   private logger: Logger = new Logger('GamesGateway');
@@ -67,15 +65,8 @@ export class GamesGateway {
     this.logger.log(`${client.id} - event send_answer`);
 
     const gameRoom = getSocketGameRoom(client);
+    const gameEngine = await this.gamesService.getGameEngine(gameRoom);
 
-    const game = await this.prismaService.game.findFirstOrThrow(
-      { where: { joinCode: gameRoom, state: GameState.PLAYING } },
-    );
-
-    await this.gamesService.sendAnswer(game.id, client.id, answer);
-
-    client.to(gameRoom).emit('on_answer_sent');
-
-    await this.gamesService.UpdateGameState(game.id);
+    await gameEngine.sendAnswer(client, answer);
   }
 }
