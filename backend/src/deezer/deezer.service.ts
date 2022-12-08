@@ -35,7 +35,7 @@ class DeezerService {
     return similarArtists;
   }
 
-  async getRandomSimilarArtists(artistId: number, maxArtists): Promise<Artist[]> {
+  async getRandomSimilarArtists(artistId: number, maxArtists: number): Promise<Artist[]> {
     const similarArtists = await this.getSimilarArtists(artistId);
 
     const shuffledSimilarArtists = shuffle(similarArtists);
