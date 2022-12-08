@@ -4,6 +4,7 @@ import { useRecoilValue } from 'recoil';
 import { gameAnswersAtom, gameGoodAnswerAtom, gamePlayersAtom, gameSelectedAnswerAtom } from '../../atoms/gameAtom';
 import gameService from '../../services/gameService';
 import socketService from '../../services/socketService';
+import PlayersScore from '../PlayersScore/PlayersScore';
 
 export default function QuestionResultScreen() {
     const goodAnswer = useRecoilValue(gameGoodAnswerAtom);
@@ -52,19 +53,7 @@ export default function QuestionResultScreen() {
                     }
                 </div>
 
-                <div>
-                    {gamePlayers.map((gamePlayer) =>
-                        <div key={gamePlayer.id} className="">
-                            <div>
-                                {gamePlayer.username}
-                            </div>
-                            <div>
-                                Score: {gamePlayer.score}
-                            </div>
-                        </div>
-                    )}
-
-                </div>
+                <PlayersScore />
 
                 <Button onClick={handleClickNextQuestion}>
                     Next question
