@@ -67,6 +67,23 @@ class DeezerService {
 
     return randomPlaylist;
   }
+
+  async getSimilarTracks(trackId: number, artistId: number): Promise<Track[]> {
+    const { data: tracks } = await tryFetch<{ data: Track[] }>(`https://api.deezer.com/artist/${artistId}/radio`);
+
+    const filteredTracks = tracks.filter((track) => track.preview !== '');
+    const filteredTracks2 = filteredTracks.filter((track) => track.id !== trackId);
+
+    return filteredTracks2;
+  }
+
+  async getRandomSimilarTracks(trackId: number, artistId: number, maxTracks: number): Promise<Track[]> {
+    const similarTracks = await this.getSimilarTracks(trackId, artistId);
+
+    const shuffledSimilarTracks = shuffle(similarTracks);
+
+    return shuffledSimilarTracks.slice(0, maxTracks);
+  }
 }
 
 export default new DeezerService();

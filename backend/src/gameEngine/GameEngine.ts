@@ -11,7 +11,6 @@ import { GameQuestionsService } from 'src/game-questions/game-questions.service'
 import { GamesService } from 'src/games/games.service';
 import { SocketService } from 'src/socket.service';
 import { Socket } from 'socket.io';
-import shuffle from 'src/utils/shuffle';
 import { GamePlayerAnswersService } from 'src/game-player-answers/game-player-answers.service';
 
 interface IConstructorProps {
@@ -24,7 +23,7 @@ interface IConstructorProps {
   socketService: SocketService
 }
 
-export class GameEngine {
+export abstract class GameEngine {
   private _gamesService: GamesService;
 
   private _gameQuestionsService: GameQuestionsService;
@@ -39,7 +38,7 @@ export class GameEngine {
 
   private _game: Game;
 
-  private logger: Logger = new Logger('GameEngine');
+  abstract logger: Logger;
 
   static JOIN_CODE_CHARS_NB = 8;
 
@@ -73,8 +72,12 @@ export class GameEngine {
     };
   }
 
+  get game() {
+    return this._game;
+  }
+
   get roomCode() {
-    return this._game.joinCode;
+    return this.game.joinCode;
   }
 
   public async gameStart() {
@@ -83,7 +86,7 @@ export class GameEngine {
       this._setGamePlaying(),
     ]);
 
-    this._socketService.socket.to(this.roomCode).emit('on_game_start', { game: this._game });
+    this._socketService.socket.to(this.roomCode).emit('on_game_start', { game: this.game });
 
     await this.nextSong();
   }
@@ -99,21 +102,21 @@ export class GameEngine {
       `The next song for the question ${gameQuestion.number} of the game ${this.roomCode} is ${track.title}`,
     );
 
-    const [suggestions, rightSuggestion] = await this._getRandomSuggestions(track);
+    const [suggestions, rightSuggestion] = await this.getRandomSuggestions(track);
 
     const gameAnswers = await this.createGameAnswers(gameQuestion.id, suggestions, rightSuggestion);
 
-    this._gamesService.startTimer(this.roomCode, this._game.id, () => { this._onTimerEnds(); });
+    this._gamesService.startTimer(this.roomCode, this.game.id, () => { this._onTimerEnds(); });
 
     this._socketService.socket.to(this.roomCode).emit('on_next_song', { trackPreview: track.preview, gameAnswers });
   }
 
   public async getCurrentGameQuestion() {
-    return this._gameQuestionsService.findByGameIdAndQuestionNumber(this._game.id, this._game.currentQuestionNumber);
+    return this._gameQuestionsService.findByGameIdAndQuestionNumber(this.game.id, this.game.currentQuestionNumber);
   }
 
   public async getGamePlayer(socketId: string) {
-    return this._gamePlayersService.findOneOrThrow({ where: { gameId: this._game.id, socketId } });
+    return this._gamePlayersService.findOneOrThrow({ where: { gameId: this.game.id, socketId } });
   }
 
   public async getGoodAnswer(gameQuestionId: string) {
@@ -131,7 +134,7 @@ export class GameEngine {
   }
 
   public async sendAnswer(client: Socket, answer: string) {
-    const timer = this._gamesService.getTimer(this._game.id);
+    const timer = this._gamesService.getTimer(this.game.id);
     const TimerTimeElapsed = timer.timeElapsed;
 
     this.logger.log(
@@ -198,7 +201,7 @@ export class GameEngine {
   public async isGameEnded() {
     this.logger.log(`Checking if game is ended for game ${this.roomCode}`);
 
-    const allQuestionsDone = this._game.currentQuestionNumber >= this._game.maxQuestions;
+    const allQuestionsDone = this.game.currentQuestionNumber >= this.game.maxQuestions;
 
     this.logger.log(`Game is ended for game ${this.roomCode} : ${allQuestionsDone}`);
 
@@ -219,7 +222,7 @@ export class GameEngine {
   }
 
   public async getGamePlayers() {
-    return this._gamePlayersService.findMany({ where: { gameId: this._game.id } });
+    return this._gamePlayersService.findMany({ where: { gameId: this.game.id } });
   }
 
   public async getGamePlayersAnswers() {
@@ -255,17 +258,7 @@ export class GameEngine {
     });
   }
 
-  private async _getRandomSuggestions(track: Track): Promise<[string[], string]> {
-    const similarArtists = await deezerService.getRandomSimilarArtists(track.artist.id, this._game.maxSuggestions - 1);
-
-    const suggestions = [track.artist.name, ...similarArtists.map((artist) => artist.name)];
-
-    const suggestionsShuffled = shuffle(suggestions);
-
-    const rightSuggestion = track.artist.name;
-
-    return [suggestionsShuffled, rightSuggestion];
-  }
+  abstract getRandomSuggestions(track: Track): Promise<[string[], string]>;
 
   private async createGameAnswers(gameQuestionId: string, suggestions: string[], rightSuggestion: string) {
     const createGameAnswersPromises = suggestions.map(
@@ -282,7 +275,7 @@ export class GameEngine {
   }
 
   private async _increaseCurrentQuestionNumber() {
-    const nextGameQuestionNumber = this._game.currentQuestionNumber + 1;
+    const nextGameQuestionNumber = this.game.currentQuestionNumber + 1;
 
     await this.updateGame({
       currentQuestionNumber: nextGameQuestionNumber,
@@ -294,11 +287,11 @@ export class GameEngine {
   }
 
   private async _createGameQuestions() {
-    const tracks = await deezerService.getRandomPlaylistTracks(this._game.playlistId, this._game.maxQuestions);
+    const tracks = await deezerService.getRandomPlaylistTracks(this.game.playlistId, this.game.maxQuestions);
 
     const createGameQuestionsPromises = tracks.map((track, index) => this._gameQuestionsService.create({
       trackId: track.id,
-      gameId: this._game.id,
+      gameId: this.game.id,
       number: index + 1,
     }));
 
@@ -321,7 +314,7 @@ export class GameEngine {
   }
 
   private async updateGame(data: Prisma.GameUpdateInput) {
-    const gameUpdated = await this._gamesService.update({ where: { id: this._game.id }, data });
+    const gameUpdated = await this._gamesService.update({ where: { id: this.game.id }, data });
 
     this._game = gameUpdated;
   }
@@ -340,7 +333,7 @@ export class GameEngine {
   }
 
   public roundEnd() {
-    this._gamesService.stopTimer(this._game.id);
+    this._gamesService.stopTimer(this.game.id);
   }
 
   public async showGameQuestionResults() {
@@ -348,7 +341,7 @@ export class GameEngine {
     const goodAnswer = await this.getGoodAnswer(gameQuestion.id);
 
     const scoresWithGamePlayerId = await this._gamePlayersService.findMany({
-      where: { gameId: this._game.id },
+      where: { gameId: this.game.id },
       select: { score: true, id: true },
     });
 

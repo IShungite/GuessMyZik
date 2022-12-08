@@ -1,12 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
-  Game, Prisma,
+  Game, GameMode, Prisma,
 } from '@prisma/client';
 import { GameAnswersService } from 'src/game-answers/game-answers.service';
 import { GamePlayerAnswersService } from 'src/game-player-answers/game-player-answers.service';
 import { GamePlayersService } from 'src/game-players/game-players.service';
 import { GameQuestionsService } from 'src/game-questions/game-questions.service';
 import { GameEngine } from 'src/gameEngine/GameEngine';
+import GameEngineFindTheTrack from 'src/gameEngine/GameEngineFindTheTrack';
 import { PrismaService } from 'src/prisma.service';
 import { SocketService } from 'src/socket.service';
 import Timer from 'src/Timer/Timer';
@@ -41,7 +42,7 @@ export class GamesService {
   async getGameEngine(joinCode: string) {
     const game = await this.findByJoinCode(joinCode);
 
-    return new GameEngine({
+    const createEngineData = {
       game,
       gamesService: this,
       gamePlayersService: this.gamePlayersService,
@@ -49,7 +50,16 @@ export class GamesService {
       socketService: this.socketService,
       gameAnswersService: this.gameAnswersService,
       gamePlayerAnswersService: this.gamePlayerAnswersService,
-    });
+    };
+
+    switch (game.gameMode) {
+      case GameMode.FIND_THE_ARTIST:
+        return new GameEngineFindTheTrack(createEngineData);
+      case GameMode.FIND_THE_TRACK:
+        return new GameEngineFindTheTrack(createEngineData);
+      default:
+        throw new Error('Game mode not supported');
+    }
   }
 
   async quitGame(joinCode: string, userId: string) {

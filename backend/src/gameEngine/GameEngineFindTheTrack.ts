@@ -5,15 +5,19 @@ import deezerService from 'src/deezer/deezer.service';
 import shuffle from 'src/utils/shuffle';
 import { GameEngine } from './GameEngine';
 
-export default class GameEngineFindTheArtist extends GameEngine {
-  public logger = new Logger('GameEngineFindTheArtist');
+export default class GameEngineFindTheTrack extends GameEngine {
+  public logger = new Logger('GameEngineFindTheTrack');
 
   async getRandomSuggestions(track: Track): Promise<[string[], string]> {
-    const similarArtists = await deezerService.getRandomSimilarArtists(track.artist.id, this.game.maxSuggestions - 1);
+    const similarTracks = await deezerService.getRandomSimilarTracks(
+      track.id,
+      track.artist.id,
+      this.game.maxSuggestions - 1,
+    );
 
-    const rightSuggestion = track.artist.name;
+    const rightSuggestion = track.title;
 
-    const suggestions = [rightSuggestion, ...similarArtists.map((artist) => artist.name)];
+    const suggestions = [rightSuggestion, ...similarTracks.map((similarTrack) => similarTrack.title)];
 
     const suggestionsShuffled = shuffle(suggestions);
 
