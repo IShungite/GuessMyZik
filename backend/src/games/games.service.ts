@@ -86,11 +86,11 @@ export class GamesService {
     return this.timers.get(gameId);
   }
 
-  startTimer(gameRoom: string, gameId: string, onTimerEnd: () => void) {
+  startTimer(gameRoom: string, gameId: string, timerDuration: number, onTimerEnd: () => void) {
     this.logger.log(`Starting timer for game ${gameId}`);
 
     const timer = new Timer({
-      duration: 15,
+      duration: timerDuration,
       onTimerUpdate: (timeRemaining: number) => {
         this.socketService.socket.to(gameRoom).emit('on_timer_update', { timeRemaining });
       },

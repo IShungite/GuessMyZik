@@ -106,7 +106,7 @@ export abstract class GameEngine {
 
     const gameAnswers = await this.createGameAnswers(gameQuestion.id, suggestions, rightSuggestion);
 
-    this._gamesService.startTimer(this.roomCode, this.game.id, () => { this._onTimerEnds(); });
+    this._gamesService.startTimer(this.roomCode, this.game.id, this.game.timerDuration, () => { this._onTimerEnds(); });
 
     this._socketService.socket.to(this.roomCode).emit('on_next_song', { trackPreview: track.preview, gameAnswers });
   }
