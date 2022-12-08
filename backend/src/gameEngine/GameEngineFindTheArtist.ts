@@ -8,8 +8,11 @@ import { GameEngine } from './GameEngine';
 export default class GameEngineFindTheArtist extends GameEngine {
   public logger = new Logger('GameEngineFindTheArtist');
 
-  async getRandomSuggestions(track: Track): Promise<[string[], string]> {
-    const similarArtists = await deezerService.getRandomSimilarArtists(track.artist.id, this.game.maxSuggestions - 1);
+  public async getRandomSuggestions(track: Track): Promise<[string[], string]> {
+    const similarArtists = await deezerService.getRandomSimilarArtists(
+      track.artist.id,
+      this.game.maxSuggestions - 1,
+    );
 
     const rightSuggestion = track.artist.name;
 
