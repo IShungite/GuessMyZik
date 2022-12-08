@@ -1,5 +1,5 @@
 import {
-  Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards, BadRequestException,
+  Controller, Get, Post, Body, Patch, Param, Request, UseGuards, BadRequestException,
 } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -12,11 +12,6 @@ export class UsersController {
   @Post()
   create(@Body() createUserDto: Prisma.UserCreateInput): Promise<User> {
     return this.usersService.create(createUserDto);
-  }
-
-  @Get('/removeAll')
-  removeAll() {
-    return this.usersService.removeAll();
   }
 
   @Get()
@@ -39,17 +34,11 @@ export class UsersController {
   ) {
     if (updateUserDto.password) {
       const checkPassword = await this.usersService
-        .checkPassword(oldPassword, updateUserDto.password as string, req.user.id);
+        .checkPassword(oldPassword, req.user.id);
       if (!checkPassword) {
         throw new BadRequestException('Password mismatch');
       }
     }
     return this.usersService.update({ where: { id }, data: updateUserDto });
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove({ id });
   }
 }

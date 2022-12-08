@@ -61,19 +61,11 @@ export class UsersService {
     return hashedPassword;
   }
 
-  async checkPassword(oldPassword: string, newPassword: string, id: string) {
+  async checkPassword(oldPassword: string, id: string) {
     const dbPassword = await this.prisma.user.findUnique({
       where: { id }, select: { password: true },
     });
     const result = await compare(oldPassword, dbPassword.password);
     return result;
-  }
-
-  async remove(where: Prisma.UserWhereUniqueInput): Promise<User> {
-    return this.prisma.user.delete({ where });
-  }
-
-  async removeAll() {
-    return this.prisma.user.deleteMany({});
   }
 }
