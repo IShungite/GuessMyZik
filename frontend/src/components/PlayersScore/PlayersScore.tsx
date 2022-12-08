@@ -17,9 +17,10 @@ function compareFn(a: any, b: any) {
 
 export default function PlayersScore() {
   const gamePlayers = useRecoilValue(gamePlayersAtom);
-  var gamePlayersSorted = gamePlayers.slice();
 
+  const gamePlayersSorted = gamePlayers.slice();
   gamePlayersSorted.sort((a, b) => a.score - b.score)
+
 
   return (
     <div>

@@ -1,7 +1,13 @@
 import React from 'react'
+import GameAnswers from '../../../components/GameAnswers/GameAnswers'
 
 export default function Finished() {
     return (
-        <div>Finished</div>
+        <div>
+            <div>
+                Finished
+            </div>
+            <GameAnswers />
+        </div>
     )
 }
