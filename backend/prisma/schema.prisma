@@ -43,6 +43,7 @@ model Game {
   maxQuestions          Int       @default(1)
   maxSuggestions        Int       @default(4)
   maxPlayers            Int       @default(4)
+  timerDuration         Int       @default(15)
 
   gamePlayers   GamePlayer[]
   gameQuestions GameQuestion[]

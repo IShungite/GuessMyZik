@@ -13,13 +13,14 @@ export default interface Game {
     maxQuestions: number;
     maxSuggestions: number;
     maxPlayers: number;
+    timerDuration: number;
 
     gamePlayers: GamePlayer[];
-    gameQuestions?: GameQuestion[]; // when there is no gameQuestions, the api will not return it so we need to make it optional
+    // gameQuestions?: GameQuestion[]; // when there is no gameQuestions, the api will not return it so we need to make it optional
 }
 
 export type UpdateGameDto = Partial<Game> & {
-    gamePlayers: GamePlayerFormat[]
+    gamePlayers?: GamePlayerFormat[]
 };
 
 

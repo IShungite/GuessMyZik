@@ -42,6 +42,11 @@ export const gameMaxPlayersAtom = atom<number>({
     default: undefined,
 })
 
+export const gameTimerDurationAtom = atom<number>({
+    key: 'gameTimerDuration',
+    default: undefined,
+})
+
 export const gameCurrentQuestionAtom = atom<number>({
     key: 'gameCurrentQuestion',
     default: 0,

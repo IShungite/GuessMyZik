@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import { useSetRecoilState } from 'recoil';
 import { UpdateGameDto } from '../@Types/Game'
 import { GamePlayerFormat } from '../@Types/GamePlayer';
-import { gameCurrentQuestionAtom, gameJoinCodeAtom, gameMaxPlayersAtom, gameMaxQuestionsAtom, gameMaxSuggestionsAtom, gameModeAtom, gamePlayersAtom, gamePlaylistIdAtom, gameStateAtom, gameTotalPlaylistTrackAtom } from '../atoms/gameAtom';
+import { gameCurrentQuestionAtom, gameJoinCodeAtom, gameMaxPlayersAtom, gameMaxQuestionsAtom, gameMaxSuggestionsAtom, gameModeAtom, gamePlayersAtom, gamePlaylistIdAtom, gameStateAtom, gameTimerDurationAtom, gameTotalPlaylistTrackAtom } from '../atoms/gameAtom';
 
 export default function useUpdateGame() {
     const setGameState = useSetRecoilState(gameStateAtom);
@@ -15,8 +15,11 @@ export default function useUpdateGame() {
     const setGamePlayers = useSetRecoilState(gamePlayersAtom);
     const setGameTotalPlaylistTracks = useSetRecoilState(gameTotalPlaylistTrackAtom)
     const setGameCurrentQuestionNumber = useSetRecoilState(gameCurrentQuestionAtom)
+    const setGameTimerDuration = useSetRecoilState(gameTimerDurationAtom)
 
     const updateGame = useCallback((updateGameDto: UpdateGameDto) => {
+        console.log(updateGameDto);
+
         if (updateGameDto.state !== undefined) {
             setGameState(updateGameDto.state);
         }
@@ -39,6 +42,10 @@ export default function useUpdateGame() {
 
         if (updateGameDto.maxSuggestions !== undefined) {
             setGameMaxSuggestions(updateGameDto.maxSuggestions);
+        }
+
+        if (updateGameDto.timerDuration !== undefined) {
+            setGameTimerDuration(updateGameDto.timerDuration)
         }
 
         if (updateGameDto.maxPlayers !== undefined) {
@@ -73,7 +80,7 @@ export default function useUpdateGame() {
 
     const updateGamePlayers = useCallback((gamePlayers: Partial<GamePlayerFormat> & { id: string }[]) => {
         setGamePlayers((prevGamePlayers) => prevGamePlayers.map((gamePlayer) => {
-            const newGamePlayerData = gamePlayers.find((gp) => gp.id)
+            const newGamePlayerData = gamePlayers.find((gp) => gp.id === gamePlayer.id)
 
             if (!newGamePlayerData) return gamePlayer;
 

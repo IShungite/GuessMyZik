@@ -4,6 +4,7 @@ import WaitingRoomGameMaxPlayers from '../../../components/WaitingRoomGameMaxPla
 import WaitingRoomGameMaxQuestions from '../../../components/WaitingRoomGameMaxQuestions/WaitingRoomGameMaxQuestions';
 import WaitingRoomGameMode from '../../../components/WaitingRoomGameMode/WaitingRoomGameMode';
 import WaitingRoomGamePlayers from '../../../components/WaitingRoomGamePlayers/WaitingRoomGamePlayers';
+import WaitingRoomGameTimerDuration from '../../../components/WaitingRoomGameTimerDuration/WaitingRoomGameTimerDuration';
 import WaitingRoomPlayButton from '../../../components/WaitingRoomPlayButton/WaitingRoomPlayButton';
 import WaitingRoomPlaylist from '../../../components/WaitingRoomPlaylist/WaitingRoomPlaylist';
 import WaitingRoomSuggestion from '../../../components/WaitingRoomSuggestion/WaitingRoomSuggestion';
@@ -22,6 +23,7 @@ export default function Waiting() {
                         <WaitingRoomGameMaxPlayers />
                         <WaitingRoomGameMaxQuestions />
                         <WaitingRoomSuggestion />
+                        <WaitingRoomGameTimerDuration />
                     </div>
                 </div>
 
