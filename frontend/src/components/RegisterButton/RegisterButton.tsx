@@ -4,7 +4,7 @@ export default function RegisterButton() {
 
     return (
         <Button type='submit'>
-            Register
+            Submit
         </Button>
     )
 }
