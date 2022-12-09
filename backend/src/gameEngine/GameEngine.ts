@@ -115,8 +115,8 @@ export abstract class GameEngine {
     return this._gameQuestionsService.findByGameIdAndQuestionNumber(this.game.id, this.game.currentQuestionNumber);
   }
 
-  public async getGamePlayer(socketId: string) {
-    return this._gamePlayersService.findOneOrThrow({ where: { gameId: this.game.id, socketId } });
+  public async getConnectedGamePlayer(socketId: string) {
+    return this._gamePlayersService.findOneOrThrow({ where: { gameId: this.game.id, socketId, isConnected: true } });
   }
 
   public async getGoodAnswer(gameQuestionId: string) {
@@ -142,7 +142,7 @@ export abstract class GameEngine {
     );
 
     const [gamePlayer, gameQuestion] = await Promise.all([
-      this.getGamePlayer(client.id),
+      this.getConnectedGamePlayer(client.id),
       this.getCurrentGameQuestion(),
     ]);
 
@@ -204,7 +204,7 @@ export abstract class GameEngine {
   public async allPlayersAnswered() {
     this.logger.log(`Checking if all players answered for game ${this.roomCode}`);
 
-    const gamePlayers = await this.getGamePlayers();
+    const gamePlayers = await this.getConnectedGamePlayers();
     const gamePlayersAnswers = await this.getGamePlayersAnswers();
 
     const allPlayersAnswered = gamePlayers.length === gamePlayersAnswers.length;
@@ -214,8 +214,8 @@ export abstract class GameEngine {
     return allPlayersAnswered;
   }
 
-  public async getGamePlayers() {
-    return this._gamePlayersService.findMany({ where: { gameId: this.game.id } });
+  public async getConnectedGamePlayers() {
+    return this._gamePlayersService.findMany({ where: { gameId: this.game.id, isConnected: true } });
   }
 
   public async getGamePlayersAnswers() {
@@ -340,7 +340,7 @@ export abstract class GameEngine {
     const goodAnswer = await this.getGoodAnswer(gameQuestion.id);
 
     const scoresWithGamePlayerId = await this._gamePlayersService.findMany({
-      where: { gameId: this.game.id },
+      where: { gameId: this.game.id, isConnected: true },
       select: { score: true, id: true },
     });
 

@@ -102,6 +102,13 @@ export class RoomsGateway {
       where: { game: { joinCode: gameRoom }, userId },
     });
 
+    await this.prismaService.gamePlayer.update({
+      where: { id: gamePlayer.id },
+      data: {
+        isConnected: false,
+      },
+    });
+
     this.logger.log(`user ${gamePlayer.userId} leaving from the room ${gameRoom}`);
 
     await client.leave(gameRoom);
