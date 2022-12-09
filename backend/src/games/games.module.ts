@@ -20,5 +20,6 @@ import { GamesGateway } from './games.gateway';
     GameAnswersService,
     GamePlayerAnswersService,
   ],
+  exports: [GamesService],
 })
 export class GamesModule { }

@@ -3,6 +3,7 @@ import {
   ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway,
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
+import { GamesService } from 'src/games/games.service';
 import { PrismaService } from 'src/prisma.service';
 import getSocketGameRoom from 'src/utils/getSocketGameRoom';
 import { RoomsService } from './rooms.service';
@@ -13,7 +14,11 @@ import { RoomsService } from './rooms.service';
   },
 })
 export class RoomsGateway {
-  constructor(private readonly roomsService: RoomsService, private prismaService: PrismaService) { }
+  constructor(
+    private readonly roomsService: RoomsService,
+    private readonly gamesService: GamesService,
+    private readonly prismaService: PrismaService,
+  ) { }
 
   private logger: Logger = new Logger('RoomsGateway');
 
@@ -102,5 +107,8 @@ export class RoomsGateway {
     await client.leave(gameRoom);
 
     client.to(gameRoom).emit('on_leave_room', { gamePlayerId: gamePlayer.id });
+
+    const gameEngine = await this.gamesService.getGameEngine(gameRoom);
+    await gameEngine.updateGameState();
   }
 }
