@@ -17,20 +17,21 @@ export default function GamePlayingAnswers() {
     }
 
     return (
-        <div>
-            {gameAnswers.map((gameAnswer) => {
-                const playerHasSelectedAnswer = !!(selectedAnswer)
-                const isSelectedAnswer = gameAnswer.value === selectedAnswer;
-                return (
-                    <div key={gameAnswer.value}>
-                        <Button disabled={playerHasSelectedAnswer} className={`${isSelectedAnswer && "bg-purple-500  disabled:hover:bg-purple-500"}`} onClick={() => handleClickAnswer(gameAnswer.value)}>
-                            {gameAnswer.value}
-                        </Button>
-                    </div>
-                )
-            }
+        <div className='flex justify-center'>
+            <div className='grid grid-cols-2 gap-4 text-center max-w-md'>
+                {gameAnswers.map((gameAnswer) => {
+                    const playerHasSelectedAnswer = !!(selectedAnswer)
+                    const isSelectedAnswer = gameAnswer.value === selectedAnswer;
+                    return (
+                        <div key={gameAnswer.value}>
+                            <button type="button" onClick={() => handleClickAnswer(gameAnswer.value)} className={`text-white disabled:cursor-not-allowed font-medium rounded-lg text-sm px-5 py-2.5 text-center opacity-100 ${isSelectedAnswer ? "bg-purple-500 hover:bg-purple-700  disabled:hover:bg-purple-500" : "bg-blue-500 hover:bg-blue-700  disabled:hover:bg-blue-500"}`} disabled={playerHasSelectedAnswer}>{gameAnswer.value}
+                            </button>
+                        </div>
+                    )
+                }
 
-            )}
+                )}
+            </div>
         </div>
 
     )

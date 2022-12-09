@@ -16,15 +16,13 @@ export default function Playing() {
     })
 
     return (
-        <div>
-            <div>
-                Playing
-            </div>
-
-
+        <div className='flex flex-col text-center'>
             <GamePlayingCurentQuestion />
 
-            <GamePlayingTimer />
+            <div className='mb-5'>
+
+                <GamePlayingTimer />
+            </div>
 
             <GamePlayingAnswers />
         </div>

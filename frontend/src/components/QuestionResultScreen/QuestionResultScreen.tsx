@@ -17,7 +17,7 @@ export default function QuestionResultScreen() {
     }
 
     return (
-        <div>
+        <div className='flex flex-col gap-5'>
             <GameAnswers />
 
             <PlayersScore />
