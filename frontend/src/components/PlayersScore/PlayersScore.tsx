@@ -3,24 +3,10 @@ import React from 'react'
 import { useRecoilValue } from 'recoil';
 import { gamePlayersAtom } from '../../atoms/gameAtom';
 
-function compareFn(a: any, b: any) {
-  if (a < b) {
-    return -1;
-  }
-  if (a > b) {
-    return 1;
-  }
-  // a must be equal to b
-  return 0;
-}
-
-
 export default function PlayersScore() {
   const gamePlayers = useRecoilValue(gamePlayersAtom);
 
-  const gamePlayersSorted = gamePlayers.slice();
-  gamePlayersSorted.sort((a, b) => a.score - b.score)
-
+  const gamePlayersSorted = gamePlayers.slice().sort((a, b) => b.score - a.score);
 
   return (
     <div>
