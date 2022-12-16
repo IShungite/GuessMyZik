@@ -5,6 +5,7 @@ import { gameAnswersAtom, gameGoodAnswerAtom, gameSelectedAnswerAtom } from '../
 import gameService from '../../services/gameService';
 import socketService from '../../services/socketService';
 import GameAnswers from '../GameAnswers/GameAnswers';
+import GamePlayingCurentQuestion from '../GamePlayingCurentQuestion/GamePlayingCurentQuestion';
 import PlayersScore from '../PlayersScore/PlayersScore';
 
 export default function QuestionResultScreen() {
@@ -17,7 +18,8 @@ export default function QuestionResultScreen() {
     }
 
     return (
-        <div className='flex flex-col gap-5'>
+        <div className='flex flex-col gap-6 items-center'>
+            <GamePlayingCurentQuestion />
             <GameAnswers />
 
             <PlayersScore />

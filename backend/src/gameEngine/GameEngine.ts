@@ -281,7 +281,11 @@ export abstract class GameEngine {
   }
 
   private async _createGameQuestions() {
-    const tracks = await deezerService.getRandomPlaylistTracks(this.game.playlistId, this.game.maxQuestions);
+    const tracks = await deezerService.getRandomPlaylistTracks(
+      this.game.playlistId,
+      this.game.maxQuestions,
+      this.game.maxQuestions,
+    );
 
     const createGameQuestionsPromises = tracks.map((track, index) => this._gameQuestionsService.create({
       trackId: track.id,

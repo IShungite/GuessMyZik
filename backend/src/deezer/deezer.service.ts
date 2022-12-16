@@ -5,16 +5,18 @@ import shuffle from 'src/utils/shuffle';
 import tryFetch from 'src/utils/tryFetch';
 
 class DeezerService {
-  async getPlaylistTracks(playlistId: number): Promise<Track[]> {
-    const { data: tracks } = await tryFetch<{ data: Track[] }>(`https://api.deezer.com/playlist/${playlistId}/tracks`);
+  async getPlaylistTracks(playlistId: number, limit?: number): Promise<Track[]> {
+    const { data: tracks } = await tryFetch<{ data: Track[] }>(
+      `https://api.deezer.com/playlist/${playlistId}/tracks?limit=${limit}`,
+    );
 
     const filteredTracks = tracks.filter((track) => track.preview !== '');
 
     return filteredTracks;
   }
 
-  async getRandomPlaylistTracks(playlistId: number, maxTracks: number): Promise<Track[]> {
-    const tracks = await this.getPlaylistTracks(playlistId);
+  async getRandomPlaylistTracks(playlistId: number, maxTracks: number, limit?: number): Promise<Track[]> {
+    const tracks = await this.getPlaylistTracks(playlistId, limit);
 
     const shuffledTacks = shuffle(tracks);
 
