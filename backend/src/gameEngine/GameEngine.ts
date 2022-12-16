@@ -138,7 +138,7 @@ export abstract class GameEngine {
     const TimerTimeElapsed = timer.timeElapsed;
 
     this.logger.log(
-      `The player ${client.id} is sending answer ${answer} for game ${this.roomCode} in ${timer.timeElapsed}s`,
+      `The player ${client.id} is sending answer ${answer} for game ${this.roomCode} in ${TimerTimeElapsed}s`,
     );
 
     const [gamePlayer, gameQuestion] = await Promise.all([
@@ -239,7 +239,7 @@ export abstract class GameEngine {
 
   private _calcAnswerScore(timeElapsed: number, duration: number) {
     const maxPoint = 500;
-    const percent = (timeElapsed * 100) / duration;
+    const percent = (timeElapsed / duration) * 100;
 
     return Math.floor((percent * maxPoint) / 100);
   }
