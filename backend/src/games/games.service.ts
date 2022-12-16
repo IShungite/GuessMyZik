@@ -7,6 +7,7 @@ import { GamePlayerAnswersService } from 'src/game-player-answers/game-player-an
 import { GamePlayersService } from 'src/game-players/game-players.service';
 import { GameQuestionsService } from 'src/game-questions/game-questions.service';
 import { GameEngine } from 'src/gameEngine/GameEngine';
+import GameEngineFindTheArtist from 'src/gameEngine/GameEngineFindTheArtist';
 import GameEngineFindTheTrack from 'src/gameEngine/GameEngineFindTheTrack';
 import { PrismaService } from 'src/prisma.service';
 import { SocketService } from 'src/socket.service';
@@ -54,7 +55,7 @@ export class GamesService {
 
     switch (game.gameMode) {
       case GameMode.FIND_THE_ARTIST:
-        return new GameEngineFindTheTrack(createEngineData);
+        return new GameEngineFindTheArtist(createEngineData);
       case GameMode.FIND_THE_TRACK:
         return new GameEngineFindTheTrack(createEngineData);
       default:
