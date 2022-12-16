@@ -136,9 +136,10 @@ export abstract class GameEngine {
   public async sendAnswer(client: Socket, answer: string) {
     const timer = this._gamesService.getTimer(this.game.id);
     const TimerTimeElapsed = timer.timeElapsed;
+    const TimerTimeRemaining = timer.timeRemaining;
 
     this.logger.log(
-      `The player ${client.id} is sending answer ${answer} for game ${this.roomCode} in ${TimerTimeElapsed}s`,
+      `The player ${client.id} is sending answer ${answer} for game ${this.roomCode} in ${TimerTimeElapsed}s, time remaining: ${TimerTimeRemaining}s`,
     );
 
     const [gamePlayer, gameQuestion] = await Promise.all([
@@ -159,7 +160,7 @@ export abstract class GameEngine {
 
     await Promise.all([
       this._createGamePlayerAnswer(gamePlayer.id, gameAnswer.id),
-      isGoodAnswer && this._increasePlayerScore(gamePlayer.id, TimerTimeElapsed, timer.duration),
+      isGoodAnswer && this._increasePlayerScore(gamePlayer.id, TimerTimeRemaining, timer.duration),
     ]);
 
     client.to(this.roomCode).emit('on_answer_sent');
@@ -229,19 +230,19 @@ export abstract class GameEngine {
     return gameAnswerId === goodAnswer.id;
   }
 
-  private async _increasePlayerScore(gamePlayerId: string, timeElapsed: number, timerDuration: number) {
-    const score = this._calcAnswerScore(timeElapsed, timerDuration);
+  private async _increasePlayerScore(gamePlayerId: string, timeRemaining: number, timerDuration: number) {
+    const score = this._calcAnswerScore(timeRemaining, timerDuration);
 
     this.logger.log(`gamePlayer ${gamePlayerId} won ${score} points`);
 
     await this._gamePlayersService.update({ where: { id: gamePlayerId }, data: { score: { increment: score } } });
   }
 
-  private _calcAnswerScore(timeElapsed: number, duration: number) {
+  private _calcAnswerScore(timeRemaining: number, duration: number) {
     const maxPoint = 500;
-    const percent = (timeElapsed / duration) * 100;
+    const percent = (timeRemaining / duration);
 
-    return Math.floor((percent * maxPoint) / 100);
+    return Math.floor(percent * maxPoint);
   }
 
   private async _createGamePlayerAnswer(gamePlayerId: string, gameAnswerId: string) {
